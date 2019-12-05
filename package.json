@@ -7,10 +7,28 @@
   "browser": "dist/index.umd.js",
   "types": "dist/lib/index.d.ts",
   "esnext": "dist/lib/index.js",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:go-faast/blockbook-client.git"
+  },
+  "homepage": "https://github.com/go-faast/blockbook-client#readme",
+  "bugs": {
+    "url": "https://github.com/go-faast/blockbook-client/issues"
+  },
+  "keywords": [
+    "bitcoin",
+    "ethereum",
+    "blockchain",
+    "blockbook"
+  ],
   "files": [
     "dist/",
     "src/"
   ],
+  "contributors": [
+    "Dylan Seago <dylan@bitaccess.co>"
+  ],
+  "license": "MIT",
   "engines": {
     "node": ">=8.0.0"
   },

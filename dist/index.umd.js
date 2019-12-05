@@ -326,70 +326,6 @@
       txs: t.array(NormalizedTxBitcoin),
   }, 'BlockInfoBitcoin');
 
-  function RequestError(cause, options, response) {
-
-      this.name = 'RequestError';
-      this.message = String(cause);
-      this.cause = cause;
-      this.error = cause; // legacy attribute
-      this.options = options;
-      this.response = response;
-
-      if (Error.captureStackTrace) { // required for non-V8 environments
-          Error.captureStackTrace(this);
-      }
-
-  }
-  RequestError.prototype = Object.create(Error.prototype);
-  RequestError.prototype.constructor = RequestError;
-
-
-  function StatusCodeError(statusCode, body, options, response) {
-
-      this.name = 'StatusCodeError';
-      this.statusCode = statusCode;
-      this.message = statusCode + ' - ' + (JSON && JSON.stringify ? JSON.stringify(body) : body);
-      this.error = body; // legacy attribute
-      this.options = options;
-      this.response = response;
-
-      if (Error.captureStackTrace) { // required for non-V8 environments
-          Error.captureStackTrace(this);
-      }
-
-  }
-  StatusCodeError.prototype = Object.create(Error.prototype);
-  StatusCodeError.prototype.constructor = StatusCodeError;
-
-
-  function TransformError(cause, options, response) {
-
-      this.name = 'TransformError';
-      this.message = String(cause);
-      this.cause = cause;
-      this.error = cause; // legacy attribute
-      this.options = options;
-      this.response = response;
-
-      if (Error.captureStackTrace) { // required for non-V8 environments
-          Error.captureStackTrace(this);
-      }
-
-  }
-  TransformError.prototype = Object.create(Error.prototype);
-  TransformError.prototype.constructor = TransformError;
-
-
-  var errors = {
-      RequestError: RequestError,
-      StatusCodeError: StatusCodeError,
-      TransformError: TransformError
-  };
-
-  var errors$1 = errors;
-
-  var errors$2 = errors$1;
-
   const NormalizedTxEthereumVin = tsCommon.extendCodec(NormalizedTxCommonVin, {
       addresses: t.array(t.string),
   }, 'NormalizedTxEthereumVin');
@@ -453,6 +389,70 @@
   const BlockInfoEthereum = tsCommon.extendCodec(BlockInfoCommon, {}, {
       txs: t.array(NormalizedTxEthereum),
   }, 'BlockInfoEthereum');
+
+  function RequestError(cause, options, response) {
+
+      this.name = 'RequestError';
+      this.message = String(cause);
+      this.cause = cause;
+      this.error = cause; // legacy attribute
+      this.options = options;
+      this.response = response;
+
+      if (Error.captureStackTrace) { // required for non-V8 environments
+          Error.captureStackTrace(this);
+      }
+
+  }
+  RequestError.prototype = Object.create(Error.prototype);
+  RequestError.prototype.constructor = RequestError;
+
+
+  function StatusCodeError(statusCode, body, options, response) {
+
+      this.name = 'StatusCodeError';
+      this.statusCode = statusCode;
+      this.message = statusCode + ' - ' + (JSON && JSON.stringify ? JSON.stringify(body) : body);
+      this.error = body; // legacy attribute
+      this.options = options;
+      this.response = response;
+
+      if (Error.captureStackTrace) { // required for non-V8 environments
+          Error.captureStackTrace(this);
+      }
+
+  }
+  StatusCodeError.prototype = Object.create(Error.prototype);
+  StatusCodeError.prototype.constructor = StatusCodeError;
+
+
+  function TransformError(cause, options, response) {
+
+      this.name = 'TransformError';
+      this.message = String(cause);
+      this.cause = cause;
+      this.error = cause; // legacy attribute
+      this.options = options;
+      this.response = response;
+
+      if (Error.captureStackTrace) { // required for non-V8 environments
+          Error.captureStackTrace(this);
+      }
+
+  }
+  TransformError.prototype = Object.create(Error.prototype);
+  TransformError.prototype.constructor = TransformError;
+
+
+  var errors = {
+      RequestError: RequestError,
+      StatusCodeError: StatusCodeError,
+      TransformError: TransformError
+  };
+
+  var errors$1 = errors;
+
+  var errors$2 = errors$1;
 
   const xpubDetailsCodecs = {
       basic: XpubDetailsBasic,
@@ -607,23 +607,66 @@
   exports.AddressDetailsBitcoinTokens = AddressDetailsBitcoinTokens;
   exports.AddressDetailsBitcoinTxids = AddressDetailsBitcoinTxids;
   exports.AddressDetailsBitcoinTxs = AddressDetailsBitcoinTxs;
+  exports.AddressDetailsCommonBasic = AddressDetailsCommonBasic;
+  exports.AddressDetailsCommonTokenBalances = AddressDetailsCommonTokenBalances;
+  exports.AddressDetailsCommonTokens = AddressDetailsCommonTokens;
+  exports.AddressDetailsCommonTxids = AddressDetailsCommonTxids;
+  exports.AddressDetailsCommonTxs = AddressDetailsCommonTxs;
+  exports.AddressDetailsEthereumBasic = AddressDetailsEthereumBasic;
+  exports.AddressDetailsEthereumTokenBalances = AddressDetailsEthereumTokenBalances;
+  exports.AddressDetailsEthereumTokens = AddressDetailsEthereumTokens;
+  exports.AddressDetailsEthereumTxids = AddressDetailsEthereumTxids;
+  exports.AddressDetailsEthereumTxs = AddressDetailsEthereumTxs;
+  exports.BackendInfo = BackendInfo;
   exports.BaseBlockbook = BaseBlockbook;
+  exports.BlockHashResponse = BlockHashResponse;
   exports.BlockInfoBitcoin = BlockInfoBitcoin;
+  exports.BlockInfoCommon = BlockInfoCommon;
+  exports.BlockInfoEthereum = BlockInfoEthereum;
   exports.Blockbook = Blockbook;
   exports.BlockbookBitcoin = BlockbookBitcoin;
+  exports.BlockbookConfig = BlockbookConfig;
   exports.BlockbookEthereum = BlockbookEthereum;
+  exports.BlockbookInfo = BlockbookInfo;
+  exports.EthereumSpecific = EthereumSpecific;
+  exports.GetAddressDetailsLevels = GetAddressDetailsLevels;
+  exports.GetAddressDetailsOptions = GetAddressDetailsOptions;
+  exports.GetUtxosOptions = GetUtxosOptions;
   exports.GetXpubDetailsOptions = GetXpubDetailsOptions;
   exports.GetXpubDetailsTokensOption = GetXpubDetailsTokensOption;
   exports.NormalizedTxBitcoin = NormalizedTxBitcoin;
   exports.NormalizedTxBitcoinVin = NormalizedTxBitcoinVin;
   exports.NormalizedTxBitcoinVout = NormalizedTxBitcoinVout;
+  exports.NormalizedTxCommon = NormalizedTxCommon;
+  exports.NormalizedTxCommonVin = NormalizedTxCommonVin;
+  exports.NormalizedTxCommonVout = NormalizedTxCommonVout;
+  exports.NormalizedTxEthereum = NormalizedTxEthereum;
+  exports.NormalizedTxEthereumVin = NormalizedTxEthereumVin;
+  exports.NormalizedTxEthereumVout = NormalizedTxEthereumVout;
+  exports.Paginated = Paginated;
+  exports.SendTxError = SendTxError;
+  exports.SendTxSuccess = SendTxSuccess;
   exports.SpecificTxBitcoin = SpecificTxBitcoin;
   exports.SpecificTxBitcoinVin = SpecificTxBitcoinVin;
   exports.SpecificTxBitcoinVinScriptSig = SpecificTxBitcoinVinScriptSig;
   exports.SpecificTxBitcoinVout = SpecificTxBitcoinVout;
   exports.SpecificTxBitcoinVoutScriptPubKey = SpecificTxBitcoinVoutScriptPubKey;
+  exports.SpecificTxEthereum = SpecificTxEthereum;
+  exports.SpecificTxEthereumReceipt = SpecificTxEthereumReceipt;
+  exports.SpecificTxEthereumTx = SpecificTxEthereumTx;
+  exports.SystemInfo = SystemInfo;
+  exports.TokenDetailsCommon = TokenDetailsCommon;
+  exports.TokenDetailsCommonBalance = TokenDetailsCommonBalance;
+  exports.TokenDetailsERC20 = TokenDetailsERC20;
+  exports.TokenDetailsERC20Balance = TokenDetailsERC20Balance;
+  exports.TokenDetailsType = TokenDetailsType;
+  exports.TokenDetailsTypeERC20 = TokenDetailsTypeERC20;
+  exports.TokenDetailsTypeXpubAddress = TokenDetailsTypeXpubAddress;
   exports.TokenDetailsXpubAddress = TokenDetailsXpubAddress;
   exports.TokenDetailsXpubAddressBalance = TokenDetailsXpubAddressBalance;
+  exports.TokenTransfer = TokenTransfer;
+  exports.UtxoDetails = UtxoDetails;
+  exports.UtxoDetailsXpub = UtxoDetailsXpub;
   exports.XpubDetailsBasic = XpubDetailsBasic;
   exports.XpubDetailsTokenBalances = XpubDetailsTokenBalances;
   exports.XpubDetailsTokens = XpubDetailsTokens;

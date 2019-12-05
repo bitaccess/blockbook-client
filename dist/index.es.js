@@ -323,70 +323,6 @@ const BlockInfoBitcoin = extendCodec(BlockInfoCommon, {}, {
     txs: array(NormalizedTxBitcoin),
 }, 'BlockInfoBitcoin');
 
-function RequestError(cause, options, response) {
-
-    this.name = 'RequestError';
-    this.message = String(cause);
-    this.cause = cause;
-    this.error = cause; // legacy attribute
-    this.options = options;
-    this.response = response;
-
-    if (Error.captureStackTrace) { // required for non-V8 environments
-        Error.captureStackTrace(this);
-    }
-
-}
-RequestError.prototype = Object.create(Error.prototype);
-RequestError.prototype.constructor = RequestError;
-
-
-function StatusCodeError(statusCode, body, options, response) {
-
-    this.name = 'StatusCodeError';
-    this.statusCode = statusCode;
-    this.message = statusCode + ' - ' + (JSON && JSON.stringify ? JSON.stringify(body) : body);
-    this.error = body; // legacy attribute
-    this.options = options;
-    this.response = response;
-
-    if (Error.captureStackTrace) { // required for non-V8 environments
-        Error.captureStackTrace(this);
-    }
-
-}
-StatusCodeError.prototype = Object.create(Error.prototype);
-StatusCodeError.prototype.constructor = StatusCodeError;
-
-
-function TransformError(cause, options, response) {
-
-    this.name = 'TransformError';
-    this.message = String(cause);
-    this.cause = cause;
-    this.error = cause; // legacy attribute
-    this.options = options;
-    this.response = response;
-
-    if (Error.captureStackTrace) { // required for non-V8 environments
-        Error.captureStackTrace(this);
-    }
-
-}
-TransformError.prototype = Object.create(Error.prototype);
-TransformError.prototype.constructor = TransformError;
-
-
-var errors = {
-    RequestError: RequestError,
-    StatusCodeError: StatusCodeError,
-    TransformError: TransformError
-};
-
-var errors$1 = errors;
-
-var errors$2 = errors$1;
-
 const NormalizedTxEthereumVin = extendCodec(NormalizedTxCommonVin, {
     addresses: array(string),
 }, 'NormalizedTxEthereumVin');
@@ -450,6 +386,70 @@ const AddressDetailsEthereumTxs = extendCodec(AddressDetailsEthereumTokenBalance
 const BlockInfoEthereum = extendCodec(BlockInfoCommon, {}, {
     txs: array(NormalizedTxEthereum),
 }, 'BlockInfoEthereum');
+
+function RequestError(cause, options, response) {
+
+    this.name = 'RequestError';
+    this.message = String(cause);
+    this.cause = cause;
+    this.error = cause; // legacy attribute
+    this.options = options;
+    this.response = response;
+
+    if (Error.captureStackTrace) { // required for non-V8 environments
+        Error.captureStackTrace(this);
+    }
+
+}
+RequestError.prototype = Object.create(Error.prototype);
+RequestError.prototype.constructor = RequestError;
+
+
+function StatusCodeError(statusCode, body, options, response) {
+
+    this.name = 'StatusCodeError';
+    this.statusCode = statusCode;
+    this.message = statusCode + ' - ' + (JSON && JSON.stringify ? JSON.stringify(body) : body);
+    this.error = body; // legacy attribute
+    this.options = options;
+    this.response = response;
+
+    if (Error.captureStackTrace) { // required for non-V8 environments
+        Error.captureStackTrace(this);
+    }
+
+}
+StatusCodeError.prototype = Object.create(Error.prototype);
+StatusCodeError.prototype.constructor = StatusCodeError;
+
+
+function TransformError(cause, options, response) {
+
+    this.name = 'TransformError';
+    this.message = String(cause);
+    this.cause = cause;
+    this.error = cause; // legacy attribute
+    this.options = options;
+    this.response = response;
+
+    if (Error.captureStackTrace) { // required for non-V8 environments
+        Error.captureStackTrace(this);
+    }
+
+}
+TransformError.prototype = Object.create(Error.prototype);
+TransformError.prototype.constructor = TransformError;
+
+
+var errors = {
+    RequestError: RequestError,
+    StatusCodeError: StatusCodeError,
+    TransformError: TransformError
+};
+
+var errors$1 = errors;
+
+var errors$2 = errors$1;
 
 const xpubDetailsCodecs = {
     basic: XpubDetailsBasic,
@@ -599,5 +599,5 @@ class BlockbookEthereum extends BaseBlockbook {
     }
 }
 
-export { AddressDetailsBitcoinBasic, AddressDetailsBitcoinTokenBalances, AddressDetailsBitcoinTokens, AddressDetailsBitcoinTxids, AddressDetailsBitcoinTxs, BaseBlockbook, BlockInfoBitcoin, Blockbook, BlockbookBitcoin, BlockbookEthereum, GetXpubDetailsOptions, GetXpubDetailsTokensOption, NormalizedTxBitcoin, NormalizedTxBitcoinVin, NormalizedTxBitcoinVout, SpecificTxBitcoin, SpecificTxBitcoinVin, SpecificTxBitcoinVinScriptSig, SpecificTxBitcoinVout, SpecificTxBitcoinVoutScriptPubKey, TokenDetailsXpubAddress, TokenDetailsXpubAddressBalance, XpubDetailsBasic, XpubDetailsTokenBalances, XpubDetailsTokens, XpubDetailsTxids, XpubDetailsTxs };
+export { AddressDetailsBitcoinBasic, AddressDetailsBitcoinTokenBalances, AddressDetailsBitcoinTokens, AddressDetailsBitcoinTxids, AddressDetailsBitcoinTxs, AddressDetailsCommonBasic, AddressDetailsCommonTokenBalances, AddressDetailsCommonTokens, AddressDetailsCommonTxids, AddressDetailsCommonTxs, AddressDetailsEthereumBasic, AddressDetailsEthereumTokenBalances, AddressDetailsEthereumTokens, AddressDetailsEthereumTxids, AddressDetailsEthereumTxs, BackendInfo, BaseBlockbook, BlockHashResponse, BlockInfoBitcoin, BlockInfoCommon, BlockInfoEthereum, Blockbook, BlockbookBitcoin, BlockbookConfig, BlockbookEthereum, BlockbookInfo, EthereumSpecific, GetAddressDetailsLevels, GetAddressDetailsOptions, GetUtxosOptions, GetXpubDetailsOptions, GetXpubDetailsTokensOption, NormalizedTxBitcoin, NormalizedTxBitcoinVin, NormalizedTxBitcoinVout, NormalizedTxCommon, NormalizedTxCommonVin, NormalizedTxCommonVout, NormalizedTxEthereum, NormalizedTxEthereumVin, NormalizedTxEthereumVout, Paginated, SendTxError, SendTxSuccess, SpecificTxBitcoin, SpecificTxBitcoinVin, SpecificTxBitcoinVinScriptSig, SpecificTxBitcoinVout, SpecificTxBitcoinVoutScriptPubKey, SpecificTxEthereum, SpecificTxEthereumReceipt, SpecificTxEthereumTx, SystemInfo, TokenDetailsCommon, TokenDetailsCommonBalance, TokenDetailsERC20, TokenDetailsERC20Balance, TokenDetailsType, TokenDetailsTypeERC20, TokenDetailsTypeXpubAddress, TokenDetailsXpubAddress, TokenDetailsXpubAddressBalance, TokenTransfer, UtxoDetails, UtxoDetailsXpub, XpubDetailsBasic, XpubDetailsTokenBalances, XpubDetailsTokens, XpubDetailsTxids, XpubDetailsTxs };
 //# sourceMappingURL=index.es.js.map

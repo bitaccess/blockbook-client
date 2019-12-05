@@ -1,4 +1,4 @@
-export * from './types/bitcoin';
+export * from './types';
 export * from './BaseBlockbook';
 export * from './Blockbook';
 export * from './BlockbookBitcoin';

@@ -39,4 +39,16 @@ export class BlockbookEthereum extends BaseBlockbook<
       }
     )
   }
+
+  async getXpubDetails(): Promise<never> {
+    throw new Error('BlockbookEthereum.getXpubDetails not supported')
+  }
+
+  async getUtxosForAddress(): Promise<never> {
+    throw new Error('BlockbookEthereum.getUtxosForAddress not supported')
+  }
+
+  async getUtxosForXpub(): Promise<never> {
+    throw new Error('BlockbookEthereum.getUtxosForXpub not supported')
+  }
 }

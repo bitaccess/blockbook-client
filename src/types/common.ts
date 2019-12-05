@@ -55,15 +55,15 @@ export const BackendInfo = requiredOptionalCodec(
   {
     chain: t.string, // 'main',
     blocks: t.number, // 577261,
-    headers: t.number, // 577261,
     bestBlockHash: t.string, // '0000000000000000000ca8c902aa58b3118a7f35d093e25a07f17bcacd91cabf',
     difficulty: t.string, // '6704632680587.417',
-    sizeOnDisk: t.number, // 250504188580,
     version: t.string, // '180000',
-    subversion: t.string, // '/Satoshi:0.18.0/',
-    protocolVersion: t.string, // '70015',
   },
   {
+    protocolVersion: t.string, // '70015',
+    subversion: t.string, // '/Satoshi:0.18.0/',
+    sizeOnDisk: t.number, // 250504188580,
+    headers: t.number, // 577261,
     timeOffset: t.number, // 0,
     warnings: t.string, // ''
   },
@@ -117,7 +117,7 @@ export const NormalizedTxCommonVin = requiredOptionalCodec(
     value: t.string,
     hex: t.string,
     asm: t.string,
-    coinbase: t.string,
+    coinbase: t.string, // '044c86041b020602'
     isAddress: t.boolean, // true
   },
   'NormalizedTxCommonVin'
@@ -172,7 +172,7 @@ export const EthereumSpecific = t.type({
   nonce: t.number, // 2830,
   gasLimit: t.number, // 36591,
   gasUsed: t.number, // 36591,
-  gasPrice: t.number, // '11000000000'
+  gasPrice: t.string, // '11000000000'
 }, 'EthereumSpecific')
 export type EthereumSpecific = t.TypeOf<typeof EthereumSpecific>
 
@@ -421,7 +421,7 @@ export const UtxoDetails = requiredOptionalCodec(
     confirmations: t.number, // 47,
   },
   {
-    height: t.boolean, // 2648043,
+    height: t.number, // 2648043,
     coinbase: t.boolean, // true,
     lockTime: t.number, // 2648100,
   },

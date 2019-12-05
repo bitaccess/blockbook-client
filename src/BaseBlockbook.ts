@@ -1,5 +1,6 @@
 import request from 'request-promise-native'
-import { assertType } from '@faast/ts-common'
+import requestErrors from 'request-promise-native/errors'
+import { assertType, isString } from '@faast/ts-common'
 import * as t from 'io-ts'
 import qs from 'qs'
 import {
@@ -8,6 +9,7 @@ import {
   UtxoDetails, UtxoDetailsXpub, GetUtxosOptions, GetXpubDetailsOptions,
   SendTxSuccess, SendTxError,
 } from './types'
+import { isObject } from 'util'
 
 const xpubDetailsCodecs = {
   basic: XpubDetailsBasic,
@@ -60,12 +62,26 @@ export abstract class BaseBlockbook<
 
   async doRequest(method: 'GET' | 'POST', url: string, params?: object, body?: object, options?: request.Options) {
     const node = this.nodes[0] // TODO: fallback to other nodes
-    return request(`https://${node}${url}${params ? qs.stringify(params) : ''}`, {
-      method,
-      body,
-      json: true,
-      ...options,
-    })
+    try {
+      return await request(`https://${node}${url}${params ? qs.stringify(params) : ''}`, {
+        method,
+        body,
+        json: true,
+        ...options,
+      })
+    } catch(e) {
+      if (e instanceof requestErrors.StatusCodeError) {
+        const body = e.response.body
+        if (isObject(body) && body.error) {
+          if (isString(body.error)) {
+            throw new Error(body.error)
+          } else if (isObject(body.error) && isString(body.error.message)) {
+            throw new Error(body.error.message)
+          }
+        }
+      }
+      throw e
+    }
   }
 
   async getStatus(): Promise<SystemInfo> {
@@ -103,7 +119,7 @@ export abstract class BaseBlockbook<
   ): Promise<AddressDetailsTokenBalances>
   async getAddressDetails(
     address: string,
-    options: GetAddressDetailsOptions & { details: 'txids' | undefined } | Omit<GetAddressDetailsOptions, 'details'>
+    options?: GetAddressDetailsOptions & { details: 'txids' | undefined } | Omit<GetAddressDetailsOptions, 'details'>
   ): Promise<AddressDetailsTxids>
   async getAddressDetails(
     address: string,
@@ -130,7 +146,7 @@ export abstract class BaseBlockbook<
   ): Promise<XpubDetailsTokenBalances>
   async getXpubDetails(
     xpub: string,
-    options: GetXpubDetailsOptions & { details: 'txids' | undefined } | Omit<GetXpubDetailsOptions, 'details'>
+    options?: GetXpubDetailsOptions & { details: 'txids' | undefined } | Omit<GetXpubDetailsOptions, 'details'>
   ): Promise<XpubDetailsTxids>
   async getXpubDetails(
     xpub: string,

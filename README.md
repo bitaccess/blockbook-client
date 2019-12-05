@@ -20,12 +20,12 @@ const blockbook = new Blockbook({
 // Example methods
 await blockbook.getStatus()
 await blockbook.getBlockHash(100000) // -> '000000000003ba27aa200b1cecaad478d2b00432346c3f1f3986da1afd33e506'
-await blockbook.getTx('2266ea441e3fbd144e33dc6c62c0d354d59dc267b48efe9a98a6e2fe6584cbd1')
-await blockbook.getTxSpecific('2266ea441e3fbd144e33dc6c62c0d354d59dc267b48efe9a98a6e2fe6584cbd1')
-await blockbook.getAddressDetails('1HWqMzw1jfpXb3xyuUZ4uWXY4tqL2cW47J')
-await blockbook.getXpubDetails('dgub8sbe5Mi8LA4dXB9zPfLZW8arm...9Vjp2HHx91xdDEmWYpmD49fpoUYF', { details: 'txids' })
-await blockbook.getUtxosForAddress('1HWqMzw1jfpXb3xyuUZ4uWXY4tqL2cW47J')
-await blockbook.getUtxosForXpub('dgub8sbe5Mi8LA4dXB9zPfLZW8arm...9Vjp2HHx91xdDEmWYpmD49fpoUYF', { confirmed: true })
+await blockbook.getTx('b62aa5203fa27495ea431b91a5090aab741c8c39cc03ec4c1f4f4e157507595f')
+await blockbook.getTxSpecific('b62aa5203fa27495ea431b91a5090aab741c8c39cc03ec4c1f4f4e157507595f')
+await blockbook.getAddressDetails('193P6LtvS4nCnkDvM9uXn1gsSRqh4aDAz7')
+await blockbook.getXpubDetails('xpub661MyMwAqRbcFtXgS5sYJABqqG9YLmC4Q1Rdap9gSE8NqtwybGhePY2gZ29ESFjqJoCu1Rupje8YtGqsefD265TMg7usUDFdp6W1EGMcet8', { details: 'txids' })
+await blockbook.getUtxosForAddress('193P6LtvS4nCnkDvM9uXn1gsSRqh4aDAz7')
+await blockbook.getUtxosForXpub('xpub661MyMwAqRbcFtXgS5sYJABqqG9YLmC4Q1Rdap9gSE8NqtwybGhePY2gZ29ESFjqJoCu1Rupje8YtGqsefD265TMg7usUDFdp6W1EGMcet8', { confirmed: true })
 await blockbook.getBlock(100000)
 await blockbook.sendTx('<hex tx data>')
 

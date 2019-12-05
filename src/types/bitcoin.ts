@@ -12,12 +12,7 @@ import {
 export const NormalizedTxBitcoinVin = extendCodec(
   NormalizedTxCommonVin,
   {
-    txid: t.string, // 'fa0b399f8eb9813f4549fc1066a134f93d1b4c7c6563d12629227ef3faf231b6'
-    addresses: t.array(t.string), // ['1DjPjQq4WZwjRvCy6LwdenCu6ynS2m3ob1']
-    vout: t.number, // 4
-    sequence: t.number, // 4294967295
     value: t.string, // '2895163'
-    hex: t.string, // '473044022013a...f2636f'
   },
   'NormalizedTxBitcoinVin',
 )
@@ -27,7 +22,6 @@ export const NormalizedTxBitcoinVout = extendCodec(
   NormalizedTxCommonVout,
   {
     value: t.string,
-    hex: t.string, // 'a9142fa547b613bf425f0308933bbaac5c67899c745d87'
   },
   'NormalizedTxBitcoinVout',
 )
@@ -39,7 +33,6 @@ export const NormalizedTxBitcoin = extendCodec(
     vin: t.array(NormalizedTxBitcoinVin),
     vout: t.array(NormalizedTxBitcoinVout),
     valueIn: t.string, // '2895163'
-    hex: t.string, // 0200000001b631f...ac00000000'
     fees: t.string, // '302808'
   },
   'NormalizedTxBitcoin'

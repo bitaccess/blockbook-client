@@ -61,9 +61,12 @@ export abstract class BaseBlockbook<
   }
 
   async doRequest(method: 'GET' | 'POST', url: string, params?: object, body?: object, options?: request.Options) {
-    const node = this.nodes[0] // TODO: fallback to other nodes
+    let node = this.nodes[0] // TODO: fallback to other nodes
+    if (!node.startsWith('http')) {
+      node = `https://${node}`
+    }
     try {
-      return await request(`https://${node}${url}${params ? qs.stringify(params) : ''}`, {
+      return await request(`${node}${url}${params ? qs.stringify(params) : ''}`, {
         method,
         body,
         json: true,

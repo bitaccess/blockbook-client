@@ -60,7 +60,7 @@ describe('BlockbookBitcoin', () => {
   })
   describe('sendTx throws on already broadcast', () => {
     it('succeeds', async () => {
-      await expect(bb.sendTx(RAW_TX)).rejects.toThrow('-27: Transaction already in block chain')
+      await expect(bb.sendTx(RAW_TX)).rejects.toThrow()
     })
   })
 })

@@ -484,9 +484,12 @@ class BaseBlockbook {
         return tsCommon.assertType(codec, value, ...rest);
     }
     async doRequest(method, url, params, body, options) {
-        const node = this.nodes[0];
+        let node = this.nodes[0];
+        if (!node.startsWith('http')) {
+            node = `https://${node}`;
+        }
         try {
-            return await request(`https://${node}${url}${params ? qs.stringify(params) : ''}`, {
+            return await request(`${node}${url}${params ? qs.stringify(params) : ''}`, {
                 method,
                 body,
                 json: true,

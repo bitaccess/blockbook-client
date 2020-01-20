@@ -1,5 +1,4 @@
 import request from 'request-promise-native';
-import requestErrors from 'request-promise-native/errors';
 import { assertType, isString } from '@faast/ts-common';
 import * as t from 'io-ts';
 import qs from 'qs';
@@ -45,8 +44,10 @@ export class BaseBlockbook {
             });
         }
         catch (e) {
-            if (e instanceof requestErrors.StatusCodeError) {
-                const body = e.response.body;
+            const eString = e.toString();
+            if (eString.includes('StatusCodeError')) {
+                const error = e;
+                const body = error.response.body;
                 if (isObject(body) && body.error) {
                     if (isString(body.error)) {
                         throw new Error(body.error);

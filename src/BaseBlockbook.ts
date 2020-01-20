@@ -66,7 +66,7 @@ export abstract class BaseBlockbook<
       node = `https://${node}`
     }
     try {
-      return await request(`${node}${url}${params ? qs.stringify(params) : ''}`, {
+      return await request(`${node}${url}${params ? qs.stringify(params, { addQueryPrefix: true }) : ''}`, {
         method,
         body,
         json: true,

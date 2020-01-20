@@ -35,8 +35,11 @@ describe('BlockbookBitcoin', () => {
     })
   })
   describe('getAddressDetails', () => {
-    it('succeeds', async () => {
+    it('succeeds with only address', async () => {
       expect(await bb.getAddressDetails(ADDRESS)).toBeDefined()
+    })
+    it('succeeds with custom details level', async () => {
+      expect(await bb.getAddressDetails(ADDRESS, { details: 'basic' })).toBeDefined()
     })
   })
   describe('getXpubDetails', () => {

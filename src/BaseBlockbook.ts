@@ -73,8 +73,10 @@ export abstract class BaseBlockbook<
         ...options,
       })
     } catch(e) {
-      if (e instanceof requestErrors.StatusCodeError) {
-        const body = e.response.body
+      const eString = e.toString()
+      if (eString.includes('StatusCodeError')) { // Can't use instanceof here because it's not portable
+        const error = e as requestErrors.StatusCodeError
+        const body = error.response.body
         if (isObject(body) && body.error) {
           if (isString(body.error)) {
             throw new Error(body.error)

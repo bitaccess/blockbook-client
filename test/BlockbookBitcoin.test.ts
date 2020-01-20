@@ -25,6 +25,9 @@ describe('BlockbookBitcoin', () => {
     it('succeeds', async () => {
       expect(await bb.getTx(TXID)).toBeDefined()
     })
+    it('throws on invalid txid', async () => {
+      await expect(bb.getTx('1234')).rejects.toThrow("Transaction '1234' not found")
+    })
   })
   describe('getTxSpecific', () => {
     it('succeeds', async () => {

@@ -60,7 +60,7 @@ export abstract class BaseBlockbook<
 
   /** Non debounced version, should use debounced `doRequest` */
   async doRequest(method: 'GET' | 'POST', path: string, params?: object, body?: object, options?: request.Options) {
-    let node = this.nodes[0] // TODO: fallback to other nodes
+    let node = this.nodes[Math.floor(Math.random() * this.nodes.length)]
     return debouncedRequest(node, method, path, params, body, options)
   }
 

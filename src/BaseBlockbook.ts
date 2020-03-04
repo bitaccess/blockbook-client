@@ -1,15 +1,13 @@
 import request from 'request-promise-native'
-import requestErrors from 'request-promise-native/errors'
-import { assertType, isString } from '@faast/ts-common'
+import { assertType } from '@faast/ts-common'
 import * as t from 'io-ts'
-import qs from 'qs'
 import {
   XpubDetailsBasic, XpubDetailsTokens, XpubDetailsTokenBalances, XpubDetailsTxids, XpubDetailsTxs,
   BlockbookConfig, SystemInfo, BlockHashResponse, GetAddressDetailsOptions,
   UtxoDetails, UtxoDetailsXpub, GetUtxosOptions, GetXpubDetailsOptions,
   SendTxSuccess, SendTxError,
 } from './types'
-import { isObject } from 'util'
+import { debouncedRequest } from './utils'
 
 const xpubDetailsCodecs = {
   basic: XpubDetailsBasic,
@@ -60,33 +58,10 @@ export abstract class BaseBlockbook<
     return assertType(codec, value, ...rest)
   }
 
-  async doRequest(method: 'GET' | 'POST', url: string, params?: object, body?: object, options?: request.Options) {
+  /** Non debounced version, should use debounced `doRequest` */
+  async doRequest(method: 'GET' | 'POST', path: string, params?: object, body?: object, options?: request.Options) {
     let node = this.nodes[0] // TODO: fallback to other nodes
-    if (!node.startsWith('http')) {
-      node = `https://${node}`
-    }
-    try {
-      return await request(`${node}${url}${params ? qs.stringify(params, { addQueryPrefix: true }) : ''}`, {
-        method,
-        body,
-        json: true,
-        ...options,
-      })
-    } catch(e) {
-      const eString = e.toString()
-      if (eString.includes('StatusCodeError')) { // Can't use instanceof here because it's not portable
-        const error = e as requestErrors.StatusCodeError
-        const body = error.response.body
-        if (isObject(body) && body.error) {
-          if (isString(body.error)) {
-            throw new Error(body.error)
-          } else if (isObject(body.error) && isString(body.error.message)) {
-            throw new Error(body.error.message)
-          }
-        }
-      }
-      throw e
-    }
+    return debouncedRequest(node, method, path, params, body, options)
   }
 
   async getStatus(): Promise<SystemInfo> {

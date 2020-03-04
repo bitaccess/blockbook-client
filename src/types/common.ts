@@ -22,6 +22,8 @@ export const BlockbookConfig = requiredOptionalCodec(
      * Default: `false`
      */
     disableTypeValidation: t.boolean,
+    /** Set to milliseconds to change debounce interval */
+    debounce: t.number,
   },
   'BlockbookConfig',
 )

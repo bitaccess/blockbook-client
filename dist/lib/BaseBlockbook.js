@@ -1,9 +1,7 @@
-import request from 'request-promise-native';
-import { assertType, isString } from '@faast/ts-common';
+import { assertType } from '@faast/ts-common';
 import * as t from 'io-ts';
-import qs from 'qs';
 import { XpubDetailsBasic, XpubDetailsTokens, XpubDetailsTokenBalances, XpubDetailsTxids, XpubDetailsTxs, BlockbookConfig, SystemInfo, BlockHashResponse, UtxoDetails, UtxoDetailsXpub, SendTxError, } from './types';
-import { isObject } from 'util';
+import { debouncedRequest } from './utils';
 const xpubDetailsCodecs = {
     basic: XpubDetailsBasic,
     tokens: XpubDetailsTokens,
@@ -30,35 +28,9 @@ export class BaseBlockbook {
         }
         return assertType(codec, value, ...rest);
     }
-    async doRequest(method, url, params, body, options) {
+    async doRequest(method, path, params, body, options) {
         let node = this.nodes[0];
-        if (!node.startsWith('http')) {
-            node = `https://${node}`;
-        }
-        try {
-            return await request(`${node}${url}${params ? qs.stringify(params, { addQueryPrefix: true }) : ''}`, {
-                method,
-                body,
-                json: true,
-                ...options,
-            });
-        }
-        catch (e) {
-            const eString = e.toString();
-            if (eString.includes('StatusCodeError')) {
-                const error = e;
-                const body = error.response.body;
-                if (isObject(body) && body.error) {
-                    if (isString(body.error)) {
-                        throw new Error(body.error);
-                    }
-                    else if (isObject(body.error) && isString(body.error.message)) {
-                        throw new Error(body.error.message);
-                    }
-                }
-            }
-            throw e;
-        }
+        return debouncedRequest(node, method, path, params, body, options);
     }
     async getStatus() {
         const response = await this.doRequest('GET', '/api/v2');

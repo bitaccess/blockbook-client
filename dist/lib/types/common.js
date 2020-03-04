@@ -9,6 +9,7 @@ export const BlockbookConfig = requiredOptionalCodec({
     nodes: t.array(t.string),
 }, {
     disableTypeValidation: t.boolean,
+    debounce: t.number,
 }, 'BlockbookConfig');
 export const BlockbookInfo = t.type({
     coin: t.string,

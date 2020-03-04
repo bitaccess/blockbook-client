@@ -2494,7 +2494,7 @@ img {
 						<aside class="tsd-sources">
 							<p>Overrides <a href="baseblockbook.html">BaseBlockbook</a>.<a href="baseblockbook.html#constructor">constructor</a></p>
 							<ul>
-								<li>Defined in <a href="https://github.com/go-faast/blockbook-client/blob/5606de6/src/BlockbookEthereum.ts#L26">src/BlockbookEthereum.ts:26</a></li>
+								<li>Defined in <a href="https://github.com/go-faast/blockbook-client/blob/b16fb6f/src/BlockbookEthereum.ts#L26">src/BlockbookEthereum.ts:26</a></li>
 							</ul>
 						</aside>
 						<h4 class="tsd-parameters-title">Parameters</h4>
@@ -2517,7 +2517,7 @@ img {
 				<aside class="tsd-sources">
 					<p>Inherited from <a href="baseblockbook.html">BaseBlockbook</a>.<a href="baseblockbook.html#disabletypevalidation">disableTypeValidation</a></p>
 					<ul>
-						<li>Defined in <a href="https://github.com/go-faast/blockbook-client/blob/5606de6/src/BaseBlockbook.ts#L33">src/BaseBlockbook.ts:33</a></li>
+						<li>Defined in <a href="https://github.com/go-faast/blockbook-client/blob/b16fb6f/src/BaseBlockbook.ts#L31">src/BaseBlockbook.ts:31</a></li>
 					</ul>
 				</aside>
 			</section>
@@ -2528,7 +2528,7 @@ img {
 				<aside class="tsd-sources">
 					<p>Inherited from <a href="baseblockbook.html">BaseBlockbook</a>.<a href="baseblockbook.html#nodes">nodes</a></p>
 					<ul>
-						<li>Defined in <a href="https://github.com/go-faast/blockbook-client/blob/5606de6/src/BaseBlockbook.ts#L32">src/BaseBlockbook.ts:32</a></li>
+						<li>Defined in <a href="https://github.com/go-faast/blockbook-client/blob/b16fb6f/src/BaseBlockbook.ts#L30">src/BaseBlockbook.ts:30</a></li>
 					</ul>
 				</aside>
 			</section>
@@ -2546,7 +2546,7 @@ img {
 						<aside class="tsd-sources">
 							<p>Inherited from <a href="baseblockbook.html">BaseBlockbook</a>.<a href="baseblockbook.html#doasserttype">doAssertType</a></p>
 							<ul>
-								<li>Defined in <a href="https://github.com/go-faast/blockbook-client/blob/5606de6/src/BaseBlockbook.ts#L56">src/BaseBlockbook.ts:56</a></li>
+								<li>Defined in <a href="https://github.com/go-faast/blockbook-client/blob/b16fb6f/src/BaseBlockbook.ts#L54">src/BaseBlockbook.ts:54</a></li>
 							</ul>
 						</aside>
 						<h4 class="tsd-type-parameters-title">Type parameters</h4>
@@ -2575,23 +2575,28 @@ img {
 				<a name="dorequest" class="tsd-anchor"></a>
 				<h3>do<wbr>Request</h3>
 				<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-					<li class="tsd-signature tsd-kind-icon">do<wbr>Request<span class="tsd-signature-symbol">(</span>method<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">"GET"</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">"POST"</span>, url<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, params<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">object</span>, body<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">object</span>, options<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">request.Options</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></li>
+					<li class="tsd-signature tsd-kind-icon">do<wbr>Request<span class="tsd-signature-symbol">(</span>method<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">"GET"</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">"POST"</span>, path<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, params<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">object</span>, body<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">object</span>, options<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">request.Options</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></li>
 				</ul>
 				<ul class="tsd-descriptions">
 					<li class="tsd-description">
 						<aside class="tsd-sources">
 							<p>Inherited from <a href="baseblockbook.html">BaseBlockbook</a>.<a href="baseblockbook.html#dorequest">doRequest</a></p>
 							<ul>
-								<li>Defined in <a href="https://github.com/go-faast/blockbook-client/blob/5606de6/src/BaseBlockbook.ts#L63">src/BaseBlockbook.ts:63</a></li>
+								<li>Defined in <a href="https://github.com/go-faast/blockbook-client/blob/b16fb6f/src/BaseBlockbook.ts#L62">src/BaseBlockbook.ts:62</a></li>
 							</ul>
 						</aside>
+						<div class="tsd-comment tsd-typography">
+							<div class="lead">
+								<p>Non debounced version, should use debounced <code>doRequest</code></p>
+							</div>
+						</div>
 						<h4 class="tsd-parameters-title">Parameters</h4>
 						<ul class="tsd-parameters">
 							<li>
 								<h5>method: <span class="tsd-signature-type">"GET"</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">"POST"</span></h5>
 							</li>
 							<li>
-								<h5>url: <span class="tsd-signature-type">string</span></h5>
+								<h5>path: <span class="tsd-signature-type">string</span></h5>
 							</li>
 							<li>
 								<h5><span class="tsd-flag ts-flagOptional">Optional</span> params: <span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">object</span></h5>
@@ -2622,7 +2627,7 @@ img {
 						<aside class="tsd-sources">
 							<p>Inherited from <a href="baseblockbook.html">BaseBlockbook</a>.<a href="baseblockbook.html#getaddressdetails">getAddressDetails</a></p>
 							<ul>
-								<li>Defined in <a href="https://github.com/go-faast/blockbook-client/blob/5606de6/src/BaseBlockbook.ts#L113">src/BaseBlockbook.ts:113</a></li>
+								<li>Defined in <a href="https://github.com/go-faast/blockbook-client/blob/b16fb6f/src/BaseBlockbook.ts#L88">src/BaseBlockbook.ts:88</a></li>
 							</ul>
 						</aside>
 						<h4 class="tsd-parameters-title">Parameters</h4>
@@ -2640,7 +2645,7 @@ img {
 						<aside class="tsd-sources">
 							<p>Inherited from <a href="baseblockbook.html">BaseBlockbook</a>.<a href="baseblockbook.html#getaddressdetails">getAddressDetails</a></p>
 							<ul>
-								<li>Defined in <a href="https://github.com/go-faast/blockbook-client/blob/5606de6/src/BaseBlockbook.ts#L117">src/BaseBlockbook.ts:117</a></li>
+								<li>Defined in <a href="https://github.com/go-faast/blockbook-client/blob/b16fb6f/src/BaseBlockbook.ts#L92">src/BaseBlockbook.ts:92</a></li>
 							</ul>
 						</aside>
 						<h4 class="tsd-parameters-title">Parameters</h4>
@@ -2658,7 +2663,7 @@ img {
 						<aside class="tsd-sources">
 							<p>Inherited from <a href="baseblockbook.html">BaseBlockbook</a>.<a href="baseblockbook.html#getaddressdetails">getAddressDetails</a></p>
 							<ul>
-								<li>Defined in <a href="https://github.com/go-faast/blockbook-client/blob/5606de6/src/BaseBlockbook.ts#L121">src/BaseBlockbook.ts:121</a></li>
+								<li>Defined in <a href="https://github.com/go-faast/blockbook-client/blob/b16fb6f/src/BaseBlockbook.ts#L96">src/BaseBlockbook.ts:96</a></li>
 							</ul>
 						</aside>
 						<h4 class="tsd-parameters-title">Parameters</h4>
@@ -2676,7 +2681,7 @@ img {
 						<aside class="tsd-sources">
 							<p>Inherited from <a href="baseblockbook.html">BaseBlockbook</a>.<a href="baseblockbook.html#getaddressdetails">getAddressDetails</a></p>
 							<ul>
-								<li>Defined in <a href="https://github.com/go-faast/blockbook-client/blob/5606de6/src/BaseBlockbook.ts#L125">src/BaseBlockbook.ts:125</a></li>
+								<li>Defined in <a href="https://github.com/go-faast/blockbook-client/blob/b16fb6f/src/BaseBlockbook.ts#L100">src/BaseBlockbook.ts:100</a></li>
 							</ul>
 						</aside>
 						<h4 class="tsd-parameters-title">Parameters</h4>
@@ -2694,7 +2699,7 @@ img {
 						<aside class="tsd-sources">
 							<p>Inherited from <a href="baseblockbook.html">BaseBlockbook</a>.<a href="baseblockbook.html#getaddressdetails">getAddressDetails</a></p>
 							<ul>
-								<li>Defined in <a href="https://github.com/go-faast/blockbook-client/blob/5606de6/src/BaseBlockbook.ts#L129">src/BaseBlockbook.ts:129</a></li>
+								<li>Defined in <a href="https://github.com/go-faast/blockbook-client/blob/b16fb6f/src/BaseBlockbook.ts#L104">src/BaseBlockbook.ts:104</a></li>
 							</ul>
 						</aside>
 						<h4 class="tsd-parameters-title">Parameters</h4>
@@ -2721,7 +2726,7 @@ img {
 						<aside class="tsd-sources">
 							<p>Inherited from <a href="baseblockbook.html">BaseBlockbook</a>.<a href="baseblockbook.html#getblock">getBlock</a></p>
 							<ul>
-								<li>Defined in <a href="https://github.com/go-faast/blockbook-client/blob/5606de6/src/BaseBlockbook.ts#L177">src/BaseBlockbook.ts:177</a></li>
+								<li>Defined in <a href="https://github.com/go-faast/blockbook-client/blob/b16fb6f/src/BaseBlockbook.ts#L152">src/BaseBlockbook.ts:152</a></li>
 							</ul>
 						</aside>
 						<h4 class="tsd-parameters-title">Parameters</h4>
@@ -2745,7 +2750,7 @@ img {
 						<aside class="tsd-sources">
 							<p>Inherited from <a href="baseblockbook.html">BaseBlockbook</a>.<a href="baseblockbook.html#getblockhash">getBlockHash</a></p>
 							<ul>
-								<li>Defined in <a href="https://github.com/go-faast/blockbook-client/blob/5606de6/src/BaseBlockbook.ts#L97">src/BaseBlockbook.ts:97</a></li>
+								<li>Defined in <a href="https://github.com/go-faast/blockbook-client/blob/b16fb6f/src/BaseBlockbook.ts#L72">src/BaseBlockbook.ts:72</a></li>
 							</ul>
 						</aside>
 						<h4 class="tsd-parameters-title">Parameters</h4>
@@ -2769,7 +2774,7 @@ img {
 						<aside class="tsd-sources">
 							<p>Inherited from <a href="baseblockbook.html">BaseBlockbook</a>.<a href="baseblockbook.html#getstatus">getStatus</a></p>
 							<ul>
-								<li>Defined in <a href="https://github.com/go-faast/blockbook-client/blob/5606de6/src/BaseBlockbook.ts#L92">src/BaseBlockbook.ts:92</a></li>
+								<li>Defined in <a href="https://github.com/go-faast/blockbook-client/blob/b16fb6f/src/BaseBlockbook.ts#L67">src/BaseBlockbook.ts:67</a></li>
 							</ul>
 						</aside>
 						<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="../globals.html#systeminfo" class="tsd-signature-type">SystemInfo</a><span class="tsd-signature-symbol">&gt;</span></h4>
@@ -2787,7 +2792,7 @@ img {
 						<aside class="tsd-sources">
 							<p>Inherited from <a href="baseblockbook.html">BaseBlockbook</a>.<a href="baseblockbook.html#gettx">getTx</a></p>
 							<ul>
-								<li>Defined in <a href="https://github.com/go-faast/blockbook-client/blob/5606de6/src/BaseBlockbook.ts#L103">src/BaseBlockbook.ts:103</a></li>
+								<li>Defined in <a href="https://github.com/go-faast/blockbook-client/blob/b16fb6f/src/BaseBlockbook.ts#L78">src/BaseBlockbook.ts:78</a></li>
 							</ul>
 						</aside>
 						<h4 class="tsd-parameters-title">Parameters</h4>
@@ -2811,7 +2816,7 @@ img {
 						<aside class="tsd-sources">
 							<p>Inherited from <a href="baseblockbook.html">BaseBlockbook</a>.<a href="baseblockbook.html#gettxspecific">getTxSpecific</a></p>
 							<ul>
-								<li>Defined in <a href="https://github.com/go-faast/blockbook-client/blob/5606de6/src/BaseBlockbook.ts#L108">src/BaseBlockbook.ts:108</a></li>
+								<li>Defined in <a href="https://github.com/go-faast/blockbook-client/blob/b16fb6f/src/BaseBlockbook.ts#L83">src/BaseBlockbook.ts:83</a></li>
 							</ul>
 						</aside>
 						<h4 class="tsd-parameters-title">Parameters</h4>
@@ -2835,7 +2840,7 @@ img {
 						<aside class="tsd-sources">
 							<p>Overrides <a href="baseblockbook.html">BaseBlockbook</a>.<a href="baseblockbook.html#getutxosforaddress">getUtxosForAddress</a></p>
 							<ul>
-								<li>Defined in <a href="https://github.com/go-faast/blockbook-client/blob/5606de6/src/BlockbookEthereum.ts#L47">src/BlockbookEthereum.ts:47</a></li>
+								<li>Defined in <a href="https://github.com/go-faast/blockbook-client/blob/b16fb6f/src/BlockbookEthereum.ts#L47">src/BlockbookEthereum.ts:47</a></li>
 							</ul>
 						</aside>
 						<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">&gt;</span></h4>
@@ -2853,7 +2858,7 @@ img {
 						<aside class="tsd-sources">
 							<p>Overrides <a href="baseblockbook.html">BaseBlockbook</a>.<a href="baseblockbook.html#getutxosforxpub">getUtxosForXpub</a></p>
 							<ul>
-								<li>Defined in <a href="https://github.com/go-faast/blockbook-client/blob/5606de6/src/BlockbookEthereum.ts#L51">src/BlockbookEthereum.ts:51</a></li>
+								<li>Defined in <a href="https://github.com/go-faast/blockbook-client/blob/b16fb6f/src/BlockbookEthereum.ts#L51">src/BlockbookEthereum.ts:51</a></li>
 							</ul>
 						</aside>
 						<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">&gt;</span></h4>
@@ -2871,7 +2876,7 @@ img {
 						<aside class="tsd-sources">
 							<p>Overrides <a href="baseblockbook.html">BaseBlockbook</a>.<a href="baseblockbook.html#getxpubdetails">getXpubDetails</a></p>
 							<ul>
-								<li>Defined in <a href="https://github.com/go-faast/blockbook-client/blob/5606de6/src/BlockbookEthereum.ts#L43">src/BlockbookEthereum.ts:43</a></li>
+								<li>Defined in <a href="https://github.com/go-faast/blockbook-client/blob/b16fb6f/src/BlockbookEthereum.ts#L43">src/BlockbookEthereum.ts:43</a></li>
 							</ul>
 						</aside>
 						<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">&gt;</span></h4>
@@ -2889,7 +2894,7 @@ img {
 						<aside class="tsd-sources">
 							<p>Inherited from <a href="baseblockbook.html">BaseBlockbook</a>.<a href="baseblockbook.html#sendtx">sendTx</a></p>
 							<ul>
-								<li>Defined in <a href="https://github.com/go-faast/blockbook-client/blob/5606de6/src/BaseBlockbook.ts#L182">src/BaseBlockbook.ts:182</a></li>
+								<li>Defined in <a href="https://github.com/go-faast/blockbook-client/blob/b16fb6f/src/BaseBlockbook.ts#L157">src/BaseBlockbook.ts:157</a></li>
 							</ul>
 						</aside>
 						<h4 class="tsd-parameters-title">Parameters</h4>

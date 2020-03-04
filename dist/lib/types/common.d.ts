@@ -9,6 +9,7 @@ export declare const BlockbookConfig: t.IntersectionC<[t.TypeC<{
     nodes: t.ArrayC<t.StringC>;
 }>, t.PartialC<{
     disableTypeValidation: t.BooleanC;
+    debounce: t.NumberC;
 }>]>;
 export declare type BlockbookConfig = t.TypeOf<typeof BlockbookConfig>;
 export declare const BlockbookInfo: t.TypeC<{

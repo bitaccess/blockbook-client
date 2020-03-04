@@ -1,8 +1,8 @@
 (function (global, factory) {
-  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('io-ts'), require('@faast/ts-common'), require('request-promise-native'), require('qs'), require('util')) :
-  typeof define === 'function' && define.amd ? define(['exports', 'io-ts', '@faast/ts-common', 'request-promise-native', 'qs', 'util'], factory) :
-  (global = global || self, factory(global.blockbookClient = {}, global.t, global.tsCommon, global.request, global.qs, global.util));
-}(this, (function (exports, t, tsCommon, request, qs, util) { 'use strict';
+  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('io-ts'), require('@faast/ts-common'), require('request-promise-native'), require('qs'), require('util'), require('debounce')) :
+  typeof define === 'function' && define.amd ? define(['exports', 'io-ts', '@faast/ts-common', 'request-promise-native', 'qs', 'util', 'debounce'], factory) :
+  (global = global || self, factory(global.blockbookClient = {}, global.t, global.tsCommon, global.request, global.qs, global.util, global.debounce));
+}(this, (function (exports, t, tsCommon, request, qs, util, debounce) { 'use strict';
 
   request = request && request.hasOwnProperty('default') ? request['default'] : request;
   qs = qs && qs.hasOwnProperty('default') ? qs['default'] : qs;
@@ -16,6 +16,7 @@
       nodes: t.array(t.string),
   }, {
       disableTypeValidation: t.boolean,
+      debounce: t.number,
   }, 'BlockbookConfig');
   const BlockbookInfo = t.type({
       coin: t.string,
@@ -390,6 +391,47 @@
       txs: t.array(NormalizedTxEthereum),
   }, 'BlockInfoEthereum');
 
+  const BLOCKBOOK_DEBOUNCE_INTERVAL = Number.parseInt(process.env.BLOCKBOOK_DEBOUNCE_INTERVAL || '200');
+  async function jsonRequest(host, method, path, params, body, options) {
+      let origin = host;
+      if (!origin.startsWith('http')) {
+          origin = `https://${host}`;
+      }
+      try {
+          return await request(`${origin}${path}${params ? qs.stringify(params, { addQueryPrefix: true }) : ''}`, {
+              method,
+              body,
+              json: true,
+              ...options,
+          });
+      }
+      catch (e) {
+          const eString = e.toString();
+          if (eString.includes('StatusCodeError')) {
+              const error = e;
+              const body = error.response.body;
+              if (util.isObject(body) && body.error) {
+                  if (tsCommon.isString(body.error)) {
+                      throw new Error(body.error);
+                  }
+                  else if (util.isObject(body.error) && tsCommon.isString(body.error.message)) {
+                      throw new Error(body.error.message);
+                  }
+              }
+          }
+          throw e;
+      }
+  }
+  const blockbookBouncers = {};
+  async function debouncedRequest(host, method, path, params, body, options) {
+      let bouncer = blockbookBouncers[host];
+      if (!bouncer) {
+          bouncer = debounce.debounce(jsonRequest, BLOCKBOOK_DEBOUNCE_INTERVAL, true);
+          blockbookBouncers[host] = bouncer;
+      }
+      return bouncer(host, method, path, params, body, options);
+  }
+
   const xpubDetailsCodecs = {
       basic: XpubDetailsBasic,
       tokens: XpubDetailsTokens,
@@ -416,35 +458,9 @@
           }
           return tsCommon.assertType(codec, value, ...rest);
       }
-      async doRequest(method, url, params, body, options) {
+      async doRequest(method, path, params, body, options) {
           let node = this.nodes[0];
-          if (!node.startsWith('http')) {
-              node = `https://${node}`;
-          }
-          try {
-              return await request(`${node}${url}${params ? qs.stringify(params, { addQueryPrefix: true }) : ''}`, {
-                  method,
-                  body,
-                  json: true,
-                  ...options,
-              });
-          }
-          catch (e) {
-              const eString = e.toString();
-              if (eString.includes('StatusCodeError')) {
-                  const error = e;
-                  const body = error.response.body;
-                  if (util.isObject(body) && body.error) {
-                      if (tsCommon.isString(body.error)) {
-                          throw new Error(body.error);
-                      }
-                      else if (util.isObject(body.error) && tsCommon.isString(body.error.message)) {
-                          throw new Error(body.error.message);
-                      }
-                  }
-              }
-              throw e;
-          }
+          return debouncedRequest(node, method, path, params, body, options);
       }
       async getStatus() {
           const response = await this.doRequest('GET', '/api/v2');

@@ -9,6 +9,7 @@ var tsCommon = require('@faast/ts-common');
 var request = _interopDefault(require('request-promise-native'));
 var qs = _interopDefault(require('qs'));
 var util = require('util');
+var debounce = require('debounce');
 
 const Paginated = t.type({
     page: t.number,
@@ -19,6 +20,7 @@ const BlockbookConfig = tsCommon.requiredOptionalCodec({
     nodes: t.array(t.string),
 }, {
     disableTypeValidation: t.boolean,
+    debounce: t.number,
 }, 'BlockbookConfig');
 const BlockbookInfo = t.type({
     coin: t.string,
@@ -393,6 +395,47 @@ const BlockInfoEthereum = tsCommon.extendCodec(BlockInfoCommon, {}, {
     txs: t.array(NormalizedTxEthereum),
 }, 'BlockInfoEthereum');
 
+const BLOCKBOOK_DEBOUNCE_INTERVAL = Number.parseInt(process.env.BLOCKBOOK_DEBOUNCE_INTERVAL || '200');
+async function jsonRequest(host, method, path, params, body, options) {
+    let origin = host;
+    if (!origin.startsWith('http')) {
+        origin = `https://${host}`;
+    }
+    try {
+        return await request(`${origin}${path}${params ? qs.stringify(params, { addQueryPrefix: true }) : ''}`, {
+            method,
+            body,
+            json: true,
+            ...options,
+        });
+    }
+    catch (e) {
+        const eString = e.toString();
+        if (eString.includes('StatusCodeError')) {
+            const error = e;
+            const body = error.response.body;
+            if (util.isObject(body) && body.error) {
+                if (tsCommon.isString(body.error)) {
+                    throw new Error(body.error);
+                }
+                else if (util.isObject(body.error) && tsCommon.isString(body.error.message)) {
+                    throw new Error(body.error.message);
+                }
+            }
+        }
+        throw e;
+    }
+}
+const blockbookBouncers = {};
+async function debouncedRequest(host, method, path, params, body, options) {
+    let bouncer = blockbookBouncers[host];
+    if (!bouncer) {
+        bouncer = debounce.debounce(jsonRequest, BLOCKBOOK_DEBOUNCE_INTERVAL, true);
+        blockbookBouncers[host] = bouncer;
+    }
+    return bouncer(host, method, path, params, body, options);
+}
+
 const xpubDetailsCodecs = {
     basic: XpubDetailsBasic,
     tokens: XpubDetailsTokens,
@@ -419,35 +462,9 @@ class BaseBlockbook {
         }
         return tsCommon.assertType(codec, value, ...rest);
     }
-    async doRequest(method, url, params, body, options) {
+    async doRequest(method, path, params, body, options) {
         let node = this.nodes[0];
-        if (!node.startsWith('http')) {
-            node = `https://${node}`;
-        }
-        try {
-            return await request(`${node}${url}${params ? qs.stringify(params, { addQueryPrefix: true }) : ''}`, {
-                method,
-                body,
-                json: true,
-                ...options,
-            });
-        }
-        catch (e) {
-            const eString = e.toString();
-            if (eString.includes('StatusCodeError')) {
-                const error = e;
-                const body = error.response.body;
-                if (util.isObject(body) && body.error) {
-                    if (tsCommon.isString(body.error)) {
-                        throw new Error(body.error);
-                    }
-                    else if (util.isObject(body.error) && tsCommon.isString(body.error.message)) {
-                        throw new Error(body.error.message);
-                    }
-                }
-            }
-            throw e;
-        }
+        return debouncedRequest(node, method, path, params, body, options);
     }
     async getStatus() {
         const response = await this.doRequest('GET', '/api/v2');

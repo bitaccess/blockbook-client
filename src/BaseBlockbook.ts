@@ -58,7 +58,6 @@ export abstract class BaseBlockbook<
     return assertType(codec, value, ...rest)
   }
 
-  /** Non debounced version, should use debounced `doRequest` */
   async doRequest(method: 'GET' | 'POST', path: string, params?: object, body?: object, options?: request.Options) {
     let node = this.nodes[Math.floor(Math.random() * this.nodes.length)]
     return debouncedRequest(node, method, path, params, body, options)

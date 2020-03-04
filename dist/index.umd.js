@@ -459,7 +459,7 @@
           return tsCommon.assertType(codec, value, ...rest);
       }
       async doRequest(method, path, params, body, options) {
-          let node = this.nodes[0];
+          let node = this.nodes[Math.floor(Math.random() * this.nodes.length)];
           return debouncedRequest(node, method, path, params, body, options);
       }
       async getStatus() {

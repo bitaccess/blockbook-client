@@ -2,10 +2,7 @@ import request from 'request-promise-native'
 import requestErrors from 'request-promise-native/errors'
 import { isString } from '@faast/ts-common'
 import qs from 'qs'
-import { isObject, inspect } from 'util'
-import { debounce } from 'debounce'
-
-export const BLOCKBOOK_DEBOUNCE_INTERVAL = Number.parseInt(process.env.BLOCKBOOK_DEBOUNCE_INTERVAL || '200')
+import { isObject } from 'util'
 
 export async function jsonRequest(
   host: string,
@@ -42,22 +39,3 @@ export async function jsonRequest(
     throw e
   }
 }
-
-const blockbookBouncers: { [s: string]: typeof jsonRequest } = {}
-
-export async function debouncedRequest(
-  host: string,
-  method: 'GET' | 'POST',
-  path: string,
-  params?: object,
-  body?: object,
-  options?: request.Options,
-) {
-  let bouncer = blockbookBouncers[host]
-  if (!bouncer) {
-    bouncer = debounce(jsonRequest, BLOCKBOOK_DEBOUNCE_INTERVAL, true)
-    blockbookBouncers[host] = bouncer
-  }
-  return bouncer(host, method, path, params, body, options)
-}
-

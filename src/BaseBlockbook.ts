@@ -7,7 +7,7 @@ import {
   UtxoDetails, UtxoDetailsXpub, GetUtxosOptions, GetXpubDetailsOptions,
   SendTxSuccess, SendTxError,
 } from './types'
-import { debouncedRequest } from './utils'
+import { jsonRequest } from './utils'
 
 const xpubDetailsCodecs = {
   basic: XpubDetailsBasic,
@@ -60,7 +60,7 @@ export abstract class BaseBlockbook<
 
   async doRequest(method: 'GET' | 'POST', path: string, params?: object, body?: object, options?: request.Options) {
     let node = this.nodes[Math.floor(Math.random() * this.nodes.length)]
-    return debouncedRequest(node, method, path, params, body, options)
+    return jsonRequest(node, method, path, params, body, options)
   }
 
   async getStatus(): Promise<SystemInfo> {

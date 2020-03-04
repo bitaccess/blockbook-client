@@ -77,7 +77,6 @@
   },
   "dependencies": {
     "@faast/ts-common": "^0.6.0",
-    "debounce": "^1.2.0",
     "io-ts": "^1.10.4",
     "qs": "^6.9.1",
     "request": "^2.88.0",

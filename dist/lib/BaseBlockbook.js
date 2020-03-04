@@ -1,7 +1,7 @@
 import { assertType } from '@faast/ts-common';
 import * as t from 'io-ts';
 import { XpubDetailsBasic, XpubDetailsTokens, XpubDetailsTokenBalances, XpubDetailsTxids, XpubDetailsTxs, BlockbookConfig, SystemInfo, BlockHashResponse, UtxoDetails, UtxoDetailsXpub, SendTxError, } from './types';
-import { debouncedRequest } from './utils';
+import { jsonRequest } from './utils';
 const xpubDetailsCodecs = {
     basic: XpubDetailsBasic,
     tokens: XpubDetailsTokens,
@@ -30,7 +30,7 @@ export class BaseBlockbook {
     }
     async doRequest(method, path, params, body, options) {
         let node = this.nodes[Math.floor(Math.random() * this.nodes.length)];
-        return debouncedRequest(node, method, path, params, body, options);
+        return jsonRequest(node, method, path, params, body, options);
     }
     async getStatus() {
         const response = await this.doRequest('GET', '/api/v2');

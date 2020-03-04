@@ -3,7 +3,6 @@ import { requiredOptionalCodec, extendCodec, isString, assertType } from '@faast
 import request from 'request-promise-native';
 import qs from 'qs';
 import { isObject } from 'util';
-import { debounce } from 'debounce';
 
 const Paginated = type({
     page: number,
@@ -389,7 +388,6 @@ const BlockInfoEthereum = extendCodec(BlockInfoCommon, {}, {
     txs: array(NormalizedTxEthereum),
 }, 'BlockInfoEthereum');
 
-const BLOCKBOOK_DEBOUNCE_INTERVAL = Number.parseInt(process.env.BLOCKBOOK_DEBOUNCE_INTERVAL || '200');
 async function jsonRequest(host, method, path, params, body, options) {
     let origin = host;
     if (!origin.startsWith('http')) {
@@ -420,15 +418,6 @@ async function jsonRequest(host, method, path, params, body, options) {
         throw e;
     }
 }
-const blockbookBouncers = {};
-async function debouncedRequest(host, method, path, params, body, options) {
-    let bouncer = blockbookBouncers[host];
-    if (!bouncer) {
-        bouncer = debounce(jsonRequest, BLOCKBOOK_DEBOUNCE_INTERVAL, true);
-        blockbookBouncers[host] = bouncer;
-    }
-    return bouncer(host, method, path, params, body, options);
-}
 
 const xpubDetailsCodecs = {
     basic: XpubDetailsBasic,
@@ -458,7 +447,7 @@ class BaseBlockbook {
     }
     async doRequest(method, path, params, body, options) {
         let node = this.nodes[Math.floor(Math.random() * this.nodes.length)];
-        return debouncedRequest(node, method, path, params, body, options);
+        return jsonRequest(node, method, path, params, body, options);
     }
     async getStatus() {
         const response = await this.doRequest('GET', '/api/v2');

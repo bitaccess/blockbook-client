@@ -74,7 +74,7 @@ export class BaseBlockbook {
         return this.doAssertType(this.blockInfoCodec, response);
     }
     async sendTx(txHex) {
-        const response = await this.doRequest('GET', `/api/v2/sendtx/${txHex}`);
+        const response = await this.doRequest('POST', '/api/v2/sendtx/', undefined, undefined, { body: txHex, json: false });
         if (SendTxError.is(response)) {
             throw new Error(`blockbook sendtx returned error: ${response.error.message}`);
         }

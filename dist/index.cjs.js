@@ -394,6 +394,14 @@ const BlockInfoEthereum = tsCommon.extendCodec(BlockInfoCommon, {}, {
     txs: t.array(NormalizedTxEthereum),
 }, 'BlockInfoEthereum');
 
+function parseJson(body) {
+    try {
+        return JSON.parse(body);
+    }
+    catch (e) {
+        return body;
+    }
+}
 async function jsonRequest(host, method, path, params, body, options) {
     let origin = host;
     if (!origin.startsWith('http')) {
@@ -411,7 +419,7 @@ async function jsonRequest(host, method, path, params, body, options) {
         const eString = e.toString();
         if (eString.includes('StatusCodeError')) {
             const error = e;
-            const body = error.response.body;
+            const body = parseJson(error.response.body);
             if (util.isObject(body) && body.error) {
                 if (tsCommon.isString(body.error)) {
                     throw new Error(body.error);
@@ -497,7 +505,7 @@ class BaseBlockbook {
         return this.doAssertType(this.blockInfoCodec, response);
     }
     async sendTx(txHex) {
-        const response = await this.doRequest('GET', `/api/v2/sendtx/${txHex}`);
+        const response = await this.doRequest('POST', '/api/v2/sendtx/', undefined, undefined, { body: txHex, json: false });
         if (SendTxError.is(response)) {
             throw new Error(`blockbook sendtx returned error: ${response.error.message}`);
         }

@@ -16,7 +16,7 @@ export declare abstract class BaseBlockbook<NormalizedTx, SpecificTx, BlockInfo,
         txs: t.Type<AddressDetailsTxs>;
     });
     doAssertType<T>(codec: t.Type<T, any, unknown>, value: unknown, ...rest: any[]): T;
-    doRequest(method: 'GET' | 'POST', path: string, params?: object, body?: object, options?: request.Options): Promise<any>;
+    doRequest(method: 'GET' | 'POST', path: string, params?: object, body?: object, options?: Partial<request.Options>): Promise<any>;
     getStatus(): Promise<SystemInfo>;
     getBlockHash(blockNumber: number): Promise<string>;
     getTx(txid: string): Promise<NormalizedTx>;

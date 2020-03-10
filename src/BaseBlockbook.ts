@@ -58,7 +58,9 @@ export abstract class BaseBlockbook<
     return assertType(codec, value, ...rest)
   }
 
-  async doRequest(method: 'GET' | 'POST', path: string, params?: object, body?: object, options?: request.Options) {
+  async doRequest(
+    method: 'GET' | 'POST', path: string, params?: object, body?: object, options?: Partial<request.Options>,
+  ) {
     let node = this.nodes[Math.floor(Math.random() * this.nodes.length)]
     return jsonRequest(node, method, path, params, body, options)
   }
@@ -154,7 +156,8 @@ export abstract class BaseBlockbook<
   }
 
   async sendTx(txHex: string): Promise<string> {
-    const response = await this.doRequest('GET', `/api/v2/sendtx/${txHex}`)
+    // NOTE: sendtx POST doesn't work without trailing slash, and sendtx GET fails for large txs
+    const response = await this.doRequest('POST', '/api/v2/sendtx/', undefined, undefined, { body: txHex, json: false })
     if (SendTxError.is(response)) {
       throw new Error(`blockbook sendtx returned error: ${response.error.message}`)
     } else {

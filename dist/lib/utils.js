@@ -2,7 +2,7 @@ import request from 'request-promise-native';
 import { isString } from '@faast/ts-common';
 import qs from 'qs';
 import { isObject } from 'util';
-function parseJson(body) {
+function tryParseJson(body) {
     try {
         return JSON.parse(body);
     }
@@ -16,18 +16,24 @@ export async function jsonRequest(host, method, path, params, body, options) {
         origin = `https://${host}`;
     }
     try {
-        return await request(`${origin}${path}${params ? qs.stringify(params, { addQueryPrefix: true }) : ''}`, {
+        const fullOptions = {
             method,
             body,
             json: true,
             ...options,
-        });
+        };
+        const queryString = params ? qs.stringify(params, { addQueryPrefix: true }) : '';
+        const result = await request(`${origin}${path}${queryString}`, fullOptions);
+        if (!fullOptions.json) {
+            return tryParseJson(result);
+        }
+        return result;
     }
     catch (e) {
         const eString = e.toString();
         if (eString.includes('StatusCodeError')) {
             const error = e;
-            const body = parseJson(error.response.body);
+            const body = tryParseJson(error.response.body);
             if (isObject(body) && body.error) {
                 if (isString(body.error)) {
                     throw new Error(body.error);

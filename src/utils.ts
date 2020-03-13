@@ -4,7 +4,7 @@ import { isString } from '@faast/ts-common'
 import qs from 'qs'
 import { isObject } from 'util'
 
-function parseJson(body: any): any {
+function tryParseJson(body: any): any {
   try {
     return JSON.parse(body)
   } catch (e) {
@@ -25,17 +25,24 @@ export async function jsonRequest(
     origin = `https://${host}`
   }
   try {
-    return await request(`${origin}${path}${params ? qs.stringify(params, { addQueryPrefix: true }) : ''}`, {
+    const fullOptions = {
       method,
       body,
       json: true,
       ...options,
-    })
+    }
+    const queryString = params ? qs.stringify(params, { addQueryPrefix: true }) : ''
+    const result = await request(`${origin}${path}${queryString}`, fullOptions)
+    if (!fullOptions.json) {
+      // Sometimes result is json format even when body wasn't
+      return tryParseJson(result)
+    }
+    return result
   } catch(e) {
     const eString = e.toString()
     if (eString.includes('StatusCodeError')) { // Can't use instanceof here because it's not portable
       const error = e as requestErrors.StatusCodeError
-      const body = parseJson(error.response.body)
+      const body = tryParseJson(error.response.body)
       if (isObject(body) && body.error) {
         if (isString(body.error)) {
           throw new Error(body.error)

@@ -24,15 +24,17 @@ export async function jsonRequest(
   if (!origin.startsWith('http')) {
     origin = `https://${host}`
   }
+  const fullOptions: request.RequestPromiseOptions = {
+    method,
+    body,
+    json: true,
+    timeout: 5000, // fail fast
+    ...options,
+  }
+  const queryString = params ? qs.stringify(params, { addQueryPrefix: true }) : ''
+  const uri = `${origin}${path}${queryString}`
   try {
-    const fullOptions = {
-      method,
-      body,
-      json: true,
-      ...options,
-    }
-    const queryString = params ? qs.stringify(params, { addQueryPrefix: true }) : ''
-    const result = await request(`${origin}${path}${queryString}`, fullOptions)
+    const result = await request(uri, fullOptions)
     if (!fullOptions.json) {
       // Sometimes result is json format even when body wasn't
       return tryParseJson(result)
@@ -49,6 +51,10 @@ export async function jsonRequest(
         } else if (isObject(body.error) && isString(body.error.message)) {
           throw new Error(body.error.message)
         }
+      } else if (error.statusCode === 522) {
+        error.message = `StatusCodeError: 522 Origin Connection Time-out ${method} ${uri}`
+      } else if (error.statusCode === 504) {
+        error.message = `StatusCodeError: 504 Gateway Time-out ${method} ${uri}`
       }
     }
     throw e

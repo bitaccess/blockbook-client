@@ -29,6 +29,7 @@ export abstract class BaseBlockbook<
 > {
   nodes: string[]
   disableTypeValidation: boolean
+  private requestCounter = 0
 
   constructor(
     config: BlockbookConfig,
@@ -61,7 +62,8 @@ export abstract class BaseBlockbook<
   async doRequest(
     method: 'GET' | 'POST', path: string, params?: object, body?: object, options?: Partial<request.Options>,
   ) {
-    let node = this.nodes[Math.floor(Math.random() * this.nodes.length)]
+    // Load balance using round robin. Helps any retry logic fallback to different nodes
+    let node = this.nodes[this.requestCounter++ % this.nodes.length]
     return jsonRequest(node, method, path, params, body, options)
   }
 

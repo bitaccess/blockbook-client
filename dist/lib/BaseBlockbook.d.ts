@@ -8,6 +8,7 @@ export declare abstract class BaseBlockbook<NormalizedTx, SpecificTx, BlockInfo,
     private addressDetailsCodecs;
     nodes: string[];
     disableTypeValidation: boolean;
+    private requestCounter;
     constructor(config: BlockbookConfig, normalizedTxCodec: t.Type<NormalizedTx>, specificTxCodec: t.Type<SpecificTx>, blockInfoCodec: t.Type<BlockInfo>, addressDetailsCodecs: {
         basic: t.Type<AddressDetailsBasic>;
         tokens: t.Type<AddressDetailsTokens>;

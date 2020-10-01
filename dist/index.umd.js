@@ -404,15 +404,17 @@
       if (!origin.startsWith('http')) {
           origin = `https://${host}`;
       }
+      const fullOptions = {
+          method,
+          body,
+          json: true,
+          timeout: 5000,
+          ...options,
+      };
+      const queryString = params ? qs.stringify(params, { addQueryPrefix: true }) : '';
+      const uri = `${origin}${path}${queryString}`;
       try {
-          const fullOptions = {
-              method,
-              body,
-              json: true,
-              ...options,
-          };
-          const queryString = params ? qs.stringify(params, { addQueryPrefix: true }) : '';
-          const result = await request(`${origin}${path}${queryString}`, fullOptions);
+          const result = await request(uri, fullOptions);
           if (!fullOptions.json) {
               return tryParseJson(result);
           }
@@ -430,6 +432,12 @@
                   else if (util.isObject(body.error) && tsCommon.isString(body.error.message)) {
                       throw new Error(body.error.message);
                   }
+              }
+              else if (error.statusCode === 522) {
+                  error.message = `StatusCodeError: 522 Origin Connection Time-out ${method} ${uri}`;
+              }
+              else if (error.statusCode === 504) {
+                  error.message = `StatusCodeError: 504 Gateway Time-out ${method} ${uri}`;
               }
           }
           throw e;
@@ -449,6 +457,7 @@
           this.specificTxCodec = specificTxCodec;
           this.blockInfoCodec = blockInfoCodec;
           this.addressDetailsCodecs = addressDetailsCodecs;
+          this.requestCounter = 0;
           config = tsCommon.assertType(BlockbookConfig, config);
           this.nodes = config.nodes;
           if (this.nodes.length === 0) {
@@ -463,7 +472,7 @@
           return tsCommon.assertType(codec, value, ...rest);
       }
       async doRequest(method, path, params, body, options) {
-          let node = this.nodes[Math.floor(Math.random() * this.nodes.length)];
+          let node = this.nodes[this.requestCounter++ % this.nodes.length];
           return jsonRequest(node, method, path, params, body, options);
       }
       async getStatus() {

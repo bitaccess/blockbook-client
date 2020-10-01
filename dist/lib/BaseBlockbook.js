@@ -15,6 +15,7 @@ export class BaseBlockbook {
         this.specificTxCodec = specificTxCodec;
         this.blockInfoCodec = blockInfoCodec;
         this.addressDetailsCodecs = addressDetailsCodecs;
+        this.requestCounter = 0;
         config = assertType(BlockbookConfig, config);
         this.nodes = config.nodes;
         if (this.nodes.length === 0) {
@@ -29,7 +30,7 @@ export class BaseBlockbook {
         return assertType(codec, value, ...rest);
     }
     async doRequest(method, path, params, body, options) {
-        let node = this.nodes[Math.floor(Math.random() * this.nodes.length)];
+        let node = this.nodes[this.requestCounter++ % this.nodes.length];
         return jsonRequest(node, method, path, params, body, options);
     }
     async getStatus() {

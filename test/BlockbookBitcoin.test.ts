@@ -9,11 +9,18 @@ const RAW_TX = '0200000001d1442246db3345a611d864e7753ee1e4dd7476817aacf53c4fbfa1
 
 describe('BlockbookBitcoin', () => {
   const bb = new BlockbookBitcoin({
-    nodes: ['btc1.trezor.io'],
+    nodes: ['btc1.trezor.io', 'btc2.trezor.io', 'btc3.trezor.io'],
   })
   describe('getStatus', () => {
     it('succeeds', async () => {
       expect(await bb.getStatus()).toBeDefined()
+    })
+    it('throws for bad node then succeeds for good', async () => {
+      const bb2 = new BlockbookBitcoin({
+        nodes: ['btc1234.trezor.io', 'btc1.trezor.io'],
+      })
+      await expect(bb2.getXpubDetails(XPUB)).rejects.toThrow('ENOTFOUND')
+      expect(await bb2.getXpubDetails(XPUB)).toBeDefined()
     })
   })
   describe('getBlockHash', () => {

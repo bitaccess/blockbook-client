@@ -1,5 +1,5 @@
 import * as t from 'io-ts'
-import { requiredOptionalCodec, extendCodec } from '@faast/ts-common'
+import { requiredOptionalCodec, extendCodec, optional } from '@faast/ts-common'
 import {
   NormalizedTxCommonVin, NormalizedTxCommonVout, NormalizedTxCommon, AddressDetailsCommonBasic,
   Paginated, GetAddressDetailsOptions, TokenDetailsTypeXpubAddress, TokenDetailsCommon, BlockInfoCommon
@@ -73,17 +73,18 @@ export const SpecificTxBitcoinVout = t.type({
 }, 'SpecificTxBitcoinVout')
 export type SpecificTxBitcoinVout = t.TypeOf<typeof SpecificTxBitcoinVout>
 
-export const SpecificTxBitcoin = t.type({
+export const SpecificTxBitcoin = requiredOptionalCodec({
   txid: t.string, // '2266ea441e3fbd144e33dc6c62c0d354d59dc267b48efe9a98a6e2fe6584cbd1'
   hash: t.string, // '2266ea441e3fbd144e33dc6c62c0d354d59dc267b48efe9a98a6e2fe6584cbd1'
   version: t.number, // 2
   size: t.number, // 223
   vsize: t.number, // 223
-  weight: t.number, // 892
   locktime: t.number, // 0
   vin: t.array(SpecificTxBitcoinVin),
   vout: t.array(SpecificTxBitcoinVout),
   hex: t.string, // '0200000001b63...88ac00000000'
+}, {
+  weight: t.number, // 892
   blockhash: t.string, // '0000000000000000000aac117ba0c0910956020b30e847154311d7d01d50476f'
   confirmations: t.number, // 2
   time: t.number, // 1574787637

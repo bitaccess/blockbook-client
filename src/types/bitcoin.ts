@@ -160,16 +160,16 @@ export const TokenDetailsXpubAddress = t.type({
   path: t.string, // 'm/44'/3'/0'/0/0',
   transfers: t.number, // 3,
   decimals: t.number, // 8,
-  balance: t.string, // '0',
-  totalReceived: t.string, // '2803986975',
-  totalSent: t.string, // '2803986975'
 }, 'TokenDetailsXpubAddress')
 export type TokenDetailsXpubAddress = t.TypeOf<typeof TokenDetailsXpubAddress>
 
 export const TokenDetailsXpubAddressBalance = extendCodec(
   TokenDetailsXpubAddress,
+  {},
   {
-    balance: t.string, // '850360'
+    balance: t.string, // '0',
+    totalReceived: t.string, // '2803986975',
+    totalSent: t.string, // '2803986975'
   },
   'TokenDetailsXpubAddressBalance',
 )
@@ -182,7 +182,7 @@ export const XpubDetailsTokens = extendCodec(
   XpubDetailsBasic,
   {},
   {
-    tokens: TokenDetailsXpubAddress,
+    tokens: t.array(TokenDetailsXpubAddress),
   },
   'XpubDetailsTokens'
 )
@@ -192,7 +192,7 @@ export const XpubDetailsTokenBalances = extendCodec(
   XpubDetailsBasic,
   {},
   {
-    tokens: TokenDetailsXpubAddressBalance,
+    tokens: t.array(TokenDetailsXpubAddressBalance)
   },
   'XpubDetailsTokenBalances'
 )

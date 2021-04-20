@@ -1,4 +1,4 @@
-import { BlockHashResponseWs } from './types/common';
+import { BlockHashResponseWs, SubscribeAddressesEvent, SubscribeNewBlockEvent } from './types/common';
 import request from 'request-promise-native'
 import { assertType, DelegateLogger, isMatchingError, isString, Logger } from '@faast/ts-common'
 import * as t from 'io-ts'
@@ -49,8 +49,8 @@ export abstract class BaseBlockbook<
   private pendingWsRequests: { [id: string]: { resolve: Resolve, reject: Reject } } = {}
   private subscriptions: { [id: string]: { callback: Resolve, method: string } } = {}
   private subscribeNewBlockId = ''
-  private subscribeNewTransactionId = ''
   private subscribeAddressesId = ''
+  private subscribeAddressesCurrent: string[] = []
 
   constructor(
     config: BlockbookConfig,
@@ -118,15 +118,17 @@ export abstract class BaseBlockbook<
     })
   }
 
-  subscribe(method: string, params: object, callback: (result: any) => void) {
+  async subscribe(method: string, params: object, callback: (result: any) => void) {
     const id = (this.requestCounter++).toString()
     this.subscriptions[id] = { callback, method }
-    return [id, this.wsRequest(method, params)]
+    const result = await this.wsRequest(method, params)
+    return [id, result]
   }
 
   unsubscribe(method: string, params: object, id: string) {
+    const result = this.wsRequest(method, params, id)
     delete this.subscriptions[id]
-    return this.wsRequest(method, params)
+    return result
   }
 
   async connect(): Promise<void> {
@@ -136,8 +138,8 @@ export abstract class BaseBlockbook<
     this.pendingWsRequests = {}
     this.subscriptions = {}
     this.subscribeNewBlockId = ''
-    this.subscribeNewTransactionId = ''
     this.subscribeAddressesId = ''
+    this.subscribeAddressesCurrent = []
     let node = this.getNode()
     if (node.startsWith('http')) {
       node = node.replace('http', 'ws')
@@ -159,7 +161,7 @@ export abstract class BaseBlockbook<
       })
       this.ws.once('error', (e) => {
         this.logger.warn('socket connect error', e)
-        this.ws.close()
+        this.ws.terminate()
         reject(e)
       })
     })
@@ -239,6 +241,12 @@ export abstract class BaseBlockbook<
       this.ws.once('error', (e) => reject(e))
       this.ws.close()
     })
+  }
+
+  assertWsConnected(msg?: string) {
+    if (!this.wsConnected) {
+      throw new Error(`Websocket must be connected to ${msg ?? ''}`)
+    }
   }
 
   // ws getInfo
@@ -367,5 +375,45 @@ export abstract class BaseBlockbook<
 
     const { result: txHash } = this.doAssertType(SendTxSuccess, response)
     return txHash
+  }
+
+  /**
+   * ws only - subscribe to new mempool transactions for particular addresses. Subsequent calls overwrite previous
+   * address list subscription.
+   */
+  async subscribeAddresses(
+    addresses: string[],
+    cb: (e: SubscribeAddressesEvent) => void,
+  ): Promise<{ subscribed: true }> {
+    this.assertWsConnected('call subscribeAddresses')
+    const [subscriptionId, result] = await this.subscribe('subscribeAddresses', { addresses }, cb)
+    this.subscribeAddressesId = subscriptionId
+    return result
+  }
+
+  /**
+   * ws only - remove existing subscribeAddresses subscription
+   */
+  async unsubscribeAddresses(): Promise<{ subscribed: false }> {
+    this.assertWsConnected('call unsubscribeAddresses')
+    return this.unsubscribe('unsubscribeAddresses', {}, this.subscribeAddressesId)
+  }
+
+  /**
+   * ws only - subscribe to new block events
+   */
+  async subscribeNewBlock(cb: (e: SubscribeNewBlockEvent) => void): Promise<{ subscribed: true }> {
+    this.assertWsConnected('call subscribeNewBlock')
+    const [subscriptionId, result] = await this.subscribe('subscribeNewBlock', {}, cb)
+    this.subscribeNewBlockId = subscriptionId
+    return result
+  }
+
+  /**
+   * ws only - remove existing subscribeAddresses subscription
+   */
+  async unsubscribeNewBlock(): Promise<{ subscribed: false }> {
+    this.assertWsConnected('call unsubscribeNewBlock')
+    return this.unsubscribe('unsubscribeNewBlock', {}, this.subscribeNewBlockId)
   }
 }

@@ -103,20 +103,6 @@ export const SystemInfoWs = t.type(
 export type SystemInfoWs = t.TypeOf<typeof SystemInfoWs>
 
 /*
- * Get block hash
- */
-
- export const BlockHashResponse = t.type({
-  blockHash: t.string, // 'ed8f3af8c10ca70a136901c6dd3adf037f0aea8a93fbe9e80939214034300f1e'
-}, 'BlockHashResponse')
-export type BlockHashResponse = t.TypeOf<typeof BlockHashResponse>
-
-export const BlockHashResponseWs = t.type({
- hash: t.string, // 'ed8f3af8c10ca70a136901c6dd3adf037f0aea8a93fbe9e80939214034300f1e'
-}, 'BlockHashResponseWs')
-export type BlockHashResponseWs = t.TypeOf<typeof BlockHashResponseWs>
-
-/*
  * Get transaction
  */
 
@@ -276,6 +262,40 @@ export const NormalizedTxCommon = requiredOptionalCodec(
   'NormalizedTxCommon',
 )
 export type NormalizedTxCommon = t.TypeOf<typeof NormalizedTxCommon>
+
+/*
+ * Get block hash
+ */
+
+export const BlockHashResponse = t.type({
+  blockHash: t.string, // 'ed8f3af8c10ca70a136901c6dd3adf037f0aea8a93fbe9e80939214034300f1e'
+}, 'BlockHashResponse')
+export type BlockHashResponse = t.TypeOf<typeof BlockHashResponse>
+
+export const BlockHashResponseWs = t.type({
+ hash: t.string, // 'ed8f3af8c10ca70a136901c6dd3adf037f0aea8a93fbe9e80939214034300f1e'
+}, 'BlockHashResponseWs')
+export type BlockHashResponseWs = t.TypeOf<typeof BlockHashResponseWs>
+
+/**
+ * subscribeNewBlock
+ */
+
+export const SubscribeNewBlockEvent = t.type({
+  height: t.number,
+  hash: t.string,
+}, 'SubscribeNewBlockEvent')
+export type SubscribeNewBlockEvent = t.TypeOf<typeof SubscribeNewBlockEvent>
+
+/**
+ * subscribeAddresses
+ */
+
+export const SubscribeAddressesEvent = t.type({
+  address: t.string,
+  tx: NormalizedTxCommon,
+}, 'SubscribeAddressesEvent')
+export type SubscribeAddressesEvent = t.TypeOf<typeof SubscribeAddressesEvent>
 
 /**
  * Get address

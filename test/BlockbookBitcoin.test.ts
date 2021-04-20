@@ -90,6 +90,8 @@ describe('BlockbookBitcoin', () => {
     let bb = new BlockbookBitcoin({
       nodes: NODES,
     })
+    const blockEvents = []
+    const addressEvents = []
 
     beforeAll(async () => {
       await bb.connect()
@@ -116,10 +118,28 @@ describe('BlockbookBitcoin', () => {
       })
     })
 
-    runStandardTests(bb)
-
-    describe('subscribeBlock', () => {
-
+    describe('subscribeNewBlock', () => {
+      it('can subscribe', async () => {
+        const result = await bb.subscribeNewBlock(console.log)
+        expect(result).toEqual({ subscribed: true })
+      })
+      it('can unsubscribe', async () => {
+        const result = await bb.unsubscribeNewBlock()
+        expect(result).toEqual({ subscribed: false })
+      })
     })
+
+    describe('subscribeAddresses', () => {
+      it('can subscribe to address', async () => {
+        const result = await bb.subscribeAddresses([ADDRESS], console.log)
+        expect(result).toEqual({ subscribed: true })
+      })
+      it('can unsubscribe', async () => {
+        const result = await bb.unsubscribeAddresses()
+        expect(result).toEqual({ subscribed: false })
+      })
+    })
+
+    runStandardTests(bb)
   })
 })

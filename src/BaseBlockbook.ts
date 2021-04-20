@@ -50,7 +50,6 @@ export abstract class BaseBlockbook<
   private subscriptions: { [id: string]: { callback: Resolve, method: string } } = {}
   private subscribeNewBlockId = ''
   private subscribeAddressesId = ''
-  private subscribeAddressesCurrent: string[] = []
 
   constructor(
     config: BlockbookConfig,
@@ -139,7 +138,6 @@ export abstract class BaseBlockbook<
     this.subscriptions = {}
     this.subscribeNewBlockId = ''
     this.subscribeAddressesId = ''
-    this.subscribeAddressesCurrent = []
     let node = this.getNode()
     if (node.startsWith('http')) {
       node = node.replace('http', 'ws')

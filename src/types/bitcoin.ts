@@ -1,8 +1,8 @@
 import * as t from 'io-ts'
-import { requiredOptionalCodec, extendCodec, optional } from '@faast/ts-common'
+import { requiredOptionalCodec, extendCodec } from '@faast/ts-common'
 import {
   NormalizedTxCommonVin, NormalizedTxCommonVout, NormalizedTxCommon, AddressDetailsCommonBasic,
-  Paginated, GetAddressDetailsOptions, TokenDetailsTypeXpubAddress, TokenDetailsCommon, BlockInfoCommon
+  GetAddressDetailsOptions, TokenDetailsTypeXpubAddress, BlockInfoCommon, paginated
 } from './common'
 
 /*
@@ -112,24 +112,24 @@ export type AddressDetailsBitcoinTokens = t.TypeOf<typeof AddressDetailsBitcoinT
 export const AddressDetailsBitcoinTokenBalances = AddressDetailsBitcoinBasic
 export type AddressDetailsBitcoinTokenBalances = t.TypeOf<typeof AddressDetailsBitcoinTokenBalances>
 
-export const AddressDetailsBitcoinTxids = extendCodec(
+export const AddressDetailsBitcoinTxids = paginated(extendCodec(
   AddressDetailsBitcoinTokenBalances,
-  Paginated.props,
+  {},
   {
     txids: t.array(t.string),
   },
   'AddressDetailsBitcoinTxids',
-)
+))
 export type AddressDetailsBitcoinTxids = t.TypeOf<typeof AddressDetailsBitcoinTxids>
 
-export const AddressDetailsBitcoinTxs = extendCodec(
+export const AddressDetailsBitcoinTxs = paginated(extendCodec(
   AddressDetailsBitcoinTokenBalances,
-  Paginated.props,
+  {},
   {
     transactions: t.array(NormalizedTxBitcoin),
   },
   'AddressDetailsBitcoinTxs',
-)
+))
 export type AddressDetailsBitcoinTxs = t.TypeOf<typeof AddressDetailsBitcoinTxs>
 
 /**
@@ -198,24 +198,24 @@ export const XpubDetailsTokenBalances = extendCodec(
 )
 export type XpubDetailsTokenBalances = t.TypeOf<typeof XpubDetailsTokenBalances>
 
-export const XpubDetailsTxids = extendCodec(
+export const XpubDetailsTxids = paginated(extendCodec(
   XpubDetailsTokenBalances,
-  Paginated.props,
+  {},
   {
     txids: t.array(t.string),
   },
   'XpubDetailsTxids',
-)
+))
 export type XpubDetailsTxids = t.TypeOf<typeof XpubDetailsTxids>
 
-export const XpubDetailsTxs = extendCodec(
+export const XpubDetailsTxs = paginated(extendCodec(
   XpubDetailsTokenBalances,
-  Paginated.props,
+  {},
   {
     transactions: t.array(NormalizedTxBitcoin),
   },
   'XpubDetailsTxs',
-)
+))
 export type XpubDetailsTxs = t.TypeOf<typeof XpubDetailsTxs>
 
 /**

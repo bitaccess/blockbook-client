@@ -1,8 +1,8 @@
 import * as t from 'io-ts'
-import { requiredOptionalCodec, extendCodec } from '@faast/ts-common'
+import { extendCodec } from '@faast/ts-common'
 import {
-  NormalizedTxCommonVin, NormalizedTxCommonVout, NormalizedTxCommon,
-  EthereumSpecific, TokenDetailsTypeERC20, AddressDetailsCommonBasic, Paginated, BlockInfoCommon,
+  NormalizedTxCommonVin, NormalizedTxCommonVout, NormalizedTxCommon, paginated,
+  EthereumSpecific, TokenDetailsTypeERC20, AddressDetailsCommonBasic, BlockInfoCommon,
 } from './common'
 
 /*
@@ -123,24 +123,24 @@ export const AddressDetailsEthereumTokenBalances = extendCodec(
 )
 export type AddressDetailsEthereumTokenBalances = t.TypeOf<typeof AddressDetailsEthereumTokenBalances>
 
-export const AddressDetailsEthereumTxids = extendCodec(
+export const AddressDetailsEthereumTxids = paginated(extendCodec(
   AddressDetailsEthereumTokenBalances,
-  Paginated.props,
+  {},
   {
     txids: t.array(t.string),
   },
   'AddressDetailsEthereumTxids',
-)
+))
 export type AddressDetailsEthereumTxids = t.TypeOf<typeof AddressDetailsEthereumTxids>
 
-export const AddressDetailsEthereumTxs = extendCodec(
+export const AddressDetailsEthereumTxs = paginated(extendCodec(
   AddressDetailsEthereumTokenBalances,
-  Paginated.props,
+  {},
   {
     transactions: t.array(NormalizedTxEthereum),
   },
   'AddressDetailsEthereumTxs',
-)
+))
 export type AddressDetailsEthereumTxs = t.TypeOf<typeof AddressDetailsEthereumTxs>
 
 /*

@@ -11,6 +11,10 @@ export const Paginated = t.type({
 }, 'Paginated')
 export type Paginated = t.TypeOf<typeof Paginated>
 
+export function paginated<C extends t.Mixed>(c: C) {
+  return t.intersection([Paginated, c])
+}
+
 export const BlockbookConfig = requiredOptionalCodec(
   {
     /**
@@ -434,24 +438,24 @@ export const AddressDetailsCommonTokenBalances = extendCodec(
 )
 export type AddressDetailsCommonTokenBalances = t.TypeOf<typeof AddressDetailsCommonTokenBalances>
 
-export const AddressDetailsCommonTxids = extendCodec(
+export const AddressDetailsCommonTxids = paginated(extendCodec(
   AddressDetailsCommonTokenBalances,
-  Paginated.props,
+  {},
   {
     txids: t.array(t.string),
   },
   'AddressDetailsCommonTxids',
-)
+))
 export type AddressDetailsCommonTxids = t.TypeOf<typeof AddressDetailsCommonTxids>
 
-export const AddressDetailsCommonTxs = extendCodec(
+export const AddressDetailsCommonTxs = paginated(extendCodec(
   AddressDetailsCommonTokenBalances,
-  Paginated.props,
+  {},
   {
     txs: t.array(NormalizedTxCommon),
   },
   'AddressDetailsCommonTxs',
-)
+))
 export type AddressDetailsCommonTxs = t.TypeOf<typeof AddressDetailsCommonTxs>
 
 /**
@@ -511,9 +515,8 @@ type BlockInfo struct {
 	Txids         []string    `json:"tx,omitempty"`
 }
   */
- export const BlockInfoCommon = requiredOptionalCodec(
+ export const BlockInfoCommon = paginated(requiredOptionalCodec(
   {
-    ...Paginated.props,
     hash: t.string, // '760f8ed32894ccce9c1ea11c8a019cadaa82bcb434b25c30102dd7e43f326217',
     height: t.number, // 2648059,
     confirmations: t.number, // 47,
@@ -532,7 +535,7 @@ type BlockInfo struct {
     txs: t.array(NormalizedTxCommon),
   },
   'BlockInfoCommon'
-)
+))
 export type BlockInfoCommon = t.TypeOf<typeof BlockInfoCommon>
 
 /**

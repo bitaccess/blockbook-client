@@ -55,6 +55,7 @@
     "@types/node": "^10.17.3",
     "@types/qs": "^6.9.0",
     "@types/request-promise-native": "^1.0.17",
+    "@types/ws": "^7.4.1",
     "coveralls": "^3.0.2",
     "jest": "^24.9.0",
     "jest-circus": "^24.9.0",
@@ -73,13 +74,14 @@
     "ts-node": "^8.4.1",
     "tslint": "^5.20.0",
     "typedoc": "^0.15.0",
-    "typescript": "^3.7.2"
+    "typescript": "^3.9.9"
   },
   "dependencies": {
     "@faast/ts-common": "^0.6.0",
     "io-ts": "^1.10.4",
     "qs": "^6.9.1",
     "request": "^2.88.0",
-    "request-promise-native": "^1.0.8"
+    "request-promise-native": "^1.0.8",
+    "ws": "^7.4.4"
   }
 }

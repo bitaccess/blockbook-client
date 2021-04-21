@@ -2,7 +2,8 @@ import request from 'request-promise-native'
 import requestErrors from 'request-promise-native/errors'
 import { isString } from '@faast/ts-common'
 import qs from 'qs'
-import { isObject } from 'util'
+
+export const USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.114 Safari/537.36'
 
 function tryParseJson(body: any): any {
   try {
@@ -20,24 +21,28 @@ export async function jsonRequest(
   body?: object,
   options?: Partial<request.Options>,
 ) {
-  let origin = host
-  if (!origin.startsWith('http')) {
-    origin = `https://${host}`
+  if (!host.startsWith('http')) {
+    host = `https://${host}`
   }
   const fullOptions: request.RequestPromiseOptions = {
     method,
     body,
     json: true,
-    timeout: 5000, // fail fast
     ...options,
+    headers: {
+      'user-agent': USER_AGENT,
+    }
   }
   const queryString = params ? qs.stringify(params, { addQueryPrefix: true }) : ''
-  const uri = `${origin}${path}${queryString}`
+  const uri = `${host}${path}${queryString}`
   try {
-    const result = await request(uri, fullOptions)
+    let result = await request(uri, fullOptions)
     if (!fullOptions.json) {
       // Sometimes result is json format even when body wasn't
-      return tryParseJson(result)
+      result = tryParseJson(result)
+    }
+    if (result?.error?.message) {
+      throw new Error(result.error.message)
     }
     return result
   } catch(e) {
@@ -45,13 +50,12 @@ export async function jsonRequest(
     if (eString.includes('StatusCodeError')) { // Can't use instanceof here because it's not portable
       const error = e as requestErrors.StatusCodeError
       const body = tryParseJson(error.response.body)
-      if (isObject(body) && body.error) {
-        if (isString(body.error)) {
-          throw new Error(body.error)
-        } else if (isObject(body.error) && isString(body.error.message)) {
-          throw new Error(body.error.message)
-        }
-      } else if (error.statusCode === 522) {
+      if (isString(body?.error)) {
+        throw new Error(body.error)
+      } else if (isString(body?.error?.message)) {
+        throw new Error(body.error.message)
+      }
+      if (error.statusCode === 522) {
         error.message = `StatusCodeError: 522 Origin Connection Time-out ${method} ${uri}`
       } else if (error.statusCode === 504) {
         error.message = `StatusCodeError: 504 Gateway Time-out ${method} ${uri}`

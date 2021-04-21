@@ -1,5 +1,8 @@
 import * as t from 'io-ts'
-import { requiredOptionalCodec, extendCodec } from '@faast/ts-common'
+import { requiredOptionalCodec, extendCodec, Logger, nullable } from '@faast/ts-common'
+
+export type Resolve = (value: any) => void
+export type Reject = (reason?: any) => void
 
 export const Paginated = t.type({
   page: t.number, // 1,
@@ -22,8 +25,10 @@ export const BlockbookConfig = requiredOptionalCodec(
      * Default: `false`
      */
     disableTypeValidation: t.boolean,
-    /** Set to milliseconds to change debounce interval */
-    debounce: t.number,
+    /** Maximum ms to wait for an http or ws request to complete */
+    requestTimeoutMs: t.number,
+    /** Logger to use. undefined -> console, null -> disabled */
+    logger: nullable(Logger),
   },
   'BlockbookConfig',
 )
@@ -79,14 +84,23 @@ export const SystemInfo = t.type({
 }, 'ApiStatus')
 export type SystemInfo = t.TypeOf<typeof SystemInfo>
 
-/*
- * Get block hash
+/**
+ * ws getInfo
  */
-
- export const BlockHashResponse = t.type({
-  blockHash: t.string, // 'ed8f3af8c10ca70a136901c6dd3adf037f0aea8a93fbe9e80939214034300f1e'
-}, 'BlockHashResponse')
-export type BlockHashResponse = t.TypeOf<typeof BlockHashResponse>
+export const SystemInfoWs = t.type(
+  {
+    name: t.string,
+    shortcut: t.string,
+    decimals: t.number,
+    version: t.string,
+    bestHeight: t.number,
+    bestHash: t.string,
+    block0Hash: t.string,
+    testnet: t.boolean,
+  },
+  'SystemInfoWs',
+)
+export type SystemInfoWs = t.TypeOf<typeof SystemInfoWs>
 
 /*
  * Get transaction
@@ -248,6 +262,40 @@ export const NormalizedTxCommon = requiredOptionalCodec(
   'NormalizedTxCommon',
 )
 export type NormalizedTxCommon = t.TypeOf<typeof NormalizedTxCommon>
+
+/*
+ * Get block hash
+ */
+
+export const BlockHashResponse = t.type({
+  blockHash: t.string, // 'ed8f3af8c10ca70a136901c6dd3adf037f0aea8a93fbe9e80939214034300f1e'
+}, 'BlockHashResponse')
+export type BlockHashResponse = t.TypeOf<typeof BlockHashResponse>
+
+export const BlockHashResponseWs = t.type({
+ hash: t.string, // 'ed8f3af8c10ca70a136901c6dd3adf037f0aea8a93fbe9e80939214034300f1e'
+}, 'BlockHashResponseWs')
+export type BlockHashResponseWs = t.TypeOf<typeof BlockHashResponseWs>
+
+/**
+ * subscribeNewBlock
+ */
+
+export const SubscribeNewBlockEvent = t.type({
+  height: t.number,
+  hash: t.string,
+}, 'SubscribeNewBlockEvent')
+export type SubscribeNewBlockEvent = t.TypeOf<typeof SubscribeNewBlockEvent>
+
+/**
+ * subscribeAddresses
+ */
+
+export const SubscribeAddressesEvent = t.type({
+  address: t.string,
+  tx: NormalizedTxCommon,
+}, 'SubscribeAddressesEvent')
+export type SubscribeAddressesEvent = t.TypeOf<typeof SubscribeAddressesEvent>
 
 /**
  * Get address

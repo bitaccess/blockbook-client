@@ -86,7 +86,7 @@ describe('BlockbookBitcoin', () => {
     runStandardTests(bb)
   })
 
-  describe.only('ws', () => {
+  describe('ws', () => {
     let bb = new BlockbookBitcoin({
       nodes: NODES,
     })

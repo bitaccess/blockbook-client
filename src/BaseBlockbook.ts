@@ -77,8 +77,8 @@ export abstract class BaseBlockbook<
     // fail fast by default
     this.requestTimeoutMs = config.requestTimeoutMs || 5000
 
-    // prefix all log messages with package name
-    this.logger = new DelegateLogger(config.logger, 'blockbook-client')
+    // prefix all log messages with package name. Default to null -> no logging
+    this.logger = new DelegateLogger(config.logger ?? null, 'blockbook-client')
   }
 
   doAssertType<T>(codec: t.Type<T, any, unknown>, value: unknown, ...rest: any[]): T {

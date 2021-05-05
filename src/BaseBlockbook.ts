@@ -120,7 +120,7 @@ export abstract class BaseBlockbook<
   async subscribe(method: string, params: object, callback: (result: any) => void) {
     const id = (this.requestCounter++).toString()
     this.subscriptions[id] = { callback, method }
-    const result = await this.wsRequest(method, params)
+    const result = await this.wsRequest(method, params, id)
     return [id, result]
   }
 

@@ -43,6 +43,7 @@ export abstract class BaseBlockbook<
   ws: WebSocket
   wsConnected: boolean
   logger: Logger
+  debug: boolean
 
   private requestCounter = 0
   private pingIntervalId: NodeJS.Timeout
@@ -79,6 +80,9 @@ export abstract class BaseBlockbook<
 
     // prefix all log messages with package name. Default to null -> no logging
     this.logger = new DelegateLogger(config.logger ?? null, 'blockbook-client')
+
+    // Turn on debug logging
+    this.debug = process.env.DEBUG?.includes('blockbook-client') ?? false
   }
 
   doAssertType<T>(codec: t.Type<T, any, unknown>, value: unknown, ...rest: any[]): T {
@@ -97,7 +101,14 @@ export abstract class BaseBlockbook<
   async httpRequest(
     method: 'GET' | 'POST', path: string, params?: object, body?: object, options?: Partial<request.Options>,
   ) {
-    return jsonRequest(this.getNode(), method, path, params, body, { timeout: this.requestTimeoutMs, ...options })
+    const response = jsonRequest(this.getNode(), method, path, params, body, {
+      timeout: this.requestTimeoutMs,
+      ...options,
+    })
+    if (this.debug) {
+      this.logger.debug(`http result ${method} ${path}`, response)
+    }
+    return response
   }
 
   wsRequest(method: string, params?: object, idOption?: string): Promise<any> {
@@ -177,7 +188,9 @@ export abstract class BaseBlockbook<
 
     // Parse all incoming messages and forward them to any pending requests or subscriptions
     this.ws.on('message', (data) => {
-      this.logger.debug('socket message', data)
+      if (this.debug) {
+        this.logger.debug('socket message', data)
+      }
       if (!isString(data)) {
         this.logger.error(`Unrecognized websocket data type ${typeof data} received from ${node}`)
         return

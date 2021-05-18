@@ -1,8 +1,8 @@
 import { BlockbookBitcoin } from '../src'
 
 const NODES = ['btc1.trezor.io', 'btc2.trezor.io', 'btc3.trezor.io']
-const BLOCK_NUMBER = 100000
-const BLOCK_HASH = '000000000003ba27aa200b1cecaad478d2b00432346c3f1f3986da1afd33e506'
+const BLOCK_NUMBER = 666666
+const BLOCK_HASH = '0000000000000000000b7b8574bc6fd285825ec2dbcbeca149121fc05b0c828c'
 const XPUB = 'xpub661MyMwAqRbcFtXgS5sYJABqqG9YLmC4Q1Rdap9gSE8NqtwybGhePY2gZ29ESFjqJoCu1Rupje8YtGqsefD265TMg7usUDFdp6W1EGMcet8'
 const ADDRESS = '193P6LtvS4nCnkDvM9uXn1gsSRqh4aDAz7'
 const TXID = '251b9c567fc7bca1cd354ce7aa278d48af79438ccae871a585b4b89d10aaa649'
@@ -52,10 +52,21 @@ describe('BlockbookBitcoin', () => {
       })
     })
     describe('getBlock', () => {
-      it('succeeds', async () => {
+      it('succeeds without options', async () => {
         const block = await bb.getBlock(BLOCK_NUMBER)
         expect(block).toBeDefined()
         expect(block.hash).toBe(BLOCK_HASH)
+        expect(block.page).toBe(1)
+        expect(block.totalPages).toBe(3)
+        expect(block.itemsOnPage).toBe(1000)
+      })
+      it('succeeds with page number', async () => {
+        const blockP2 = await bb.getBlock(BLOCK_NUMBER, { page: 2 })
+        expect(blockP2).toBeDefined()
+        expect(blockP2.hash).toBe(BLOCK_HASH)
+        expect(blockP2.page).toBe(2)
+        expect(blockP2.totalPages).toBe(3)
+        expect(blockP2.itemsOnPage).toBe(1000)
       })
     })
     describe('sendTx throws on already broadcast', () => {

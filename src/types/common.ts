@@ -498,6 +498,11 @@ export type UtxoDetailsXpub = t.TypeOf<typeof UtxoDetailsXpub>
  * Get block
  */
 
+export const GetBlockOptions = t.partial({
+  page: t.number,
+}, 'GetBlockOptions')
+export type GetBlockOptions = t.TypeOf<typeof GetBlockOptions>
+
  /*
 type BlockInfo struct {
 	Hash          string      `json:"hash"`

@@ -1,4 +1,4 @@
-import { BlockHashResponseWs, SubscribeAddressesEvent, SubscribeNewBlockEvent } from './types/common';
+import { BlockHashResponseWs, GetBlockOptions, SubscribeAddressesEvent, SubscribeNewBlockEvent } from './types/common';
 import request from 'request-promise-native'
 import { assertType, DelegateLogger, isMatchingError, isString, Logger } from '@faast/ts-common'
 import * as t from 'io-ts'
@@ -372,9 +372,9 @@ export abstract class BaseBlockbook<
     return this.doAssertType(t.array(UtxoDetailsXpub), response)
   }
 
-  async getBlock(block: string | number): Promise<BlockInfo> {
+  async getBlock(block: string | number, options: GetBlockOptions = {}): Promise<BlockInfo> {
     // http only
-    const response = await this.httpRequest('GET', `/api/v2/block/${block}`)
+    const response = await this.httpRequest('GET', `/api/v2/block/${block}`, options)
     return this.doAssertType(this.blockInfoCodec, response)
   }
 

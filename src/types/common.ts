@@ -162,7 +162,7 @@ type Vout struct {
 export const NormalizedTxCommonVout = requiredOptionalCodec(
   {
     n: t.number, // 0
-    addresses: t.array(t.string), // ['362wgRYYj8ybZwuQzxE2PNykjJAwStKARz']
+    addresses: nullable(t.array(t.string)), // ['362wgRYYj8ybZwuQzxE2PNykjJAwStKARz']
   },
   {
     value: t.string, // '1351072'

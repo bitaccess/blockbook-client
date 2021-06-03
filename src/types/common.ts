@@ -23,6 +23,8 @@ export const BlockbookConfig = requiredOptionalCodec(
     nodes: t.array(t.string),
   },
   {
+    /** Logger to use. undefined -> console, null -> disabled */
+    logger: nullable(Logger),
     /**
      * Set true to disable response validation for performance, or use in javascript.
      *
@@ -31,8 +33,8 @@ export const BlockbookConfig = requiredOptionalCodec(
     disableTypeValidation: t.boolean,
     /** Maximum ms to wait for an http or ws request to complete */
     requestTimeoutMs: t.number,
-    /** Logger to use. undefined -> console, null -> disabled */
-    logger: nullable(Logger),
+    /** Time to wait before reconnecting after an unexpected disconnect */
+    reconnectDelayMs: t.number,
   },
   'BlockbookConfig',
 )

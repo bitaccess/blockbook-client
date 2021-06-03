@@ -40,8 +40,10 @@ export abstract class BaseBlockbook<
   nodes: string[]
   disableTypeValidation: boolean
   requestTimeoutMs: number
+  reconnectDelayMs: number
   ws: WebSocket
   wsConnected: boolean
+  wsConnectedNode?: string
   logger: Logger
   debug: boolean
 
@@ -51,6 +53,8 @@ export abstract class BaseBlockbook<
   private subscriptions: { [id: string]: { callback: Resolve, method: string } } = {}
   private subscribeNewBlockId = ''
   private subscribeAddressesId = ''
+
+  static WS_NORMAL_CLOSURE_CODES = [1000, 1005]
 
   constructor(
     config: BlockbookConfig,
@@ -77,6 +81,9 @@ export abstract class BaseBlockbook<
 
     // fail fast by default
     this.requestTimeoutMs = config.requestTimeoutMs || 5000
+
+    // reconnect to failed ws quickly
+    this.reconnectDelayMs = config.reconnectDelayMs || 2000
 
     // prefix all log messages with package name. Default to null -> no logging
     this.logger = new DelegateLogger(config.logger ?? null, 'blockbook-client')
@@ -141,9 +148,10 @@ export abstract class BaseBlockbook<
     return result
   }
 
-  async connect(): Promise<void> {
-    if (this.wsConnected) {
-      return
+  /** Establish a websocket connection to a node and return the node url if successful */
+  async connect(): Promise<string> {
+    if (this.wsConnectedNode) {
+      return this.wsConnectedNode
     }
     this.pendingWsRequests = {}
     this.subscriptions = {}
@@ -164,32 +172,37 @@ export abstract class BaseBlockbook<
     await new Promise<void>((resolve, reject) => {
       this.ws = new WebSocket(node, { headers: { 'user-agent': USER_AGENT } })
       this.ws.once('open', (e) => {
-        this.logger.log('socket connected', e)
+        this.logger.log(`socket connected to ${node}`)
         this.wsConnected = true
+        this.wsConnectedNode = node
         resolve()
       })
       this.ws.once('error', (e) => {
-        this.logger.warn('socket connect error', e)
+        this.logger.warn(`socket error connecting to ${node}`, e)
         this.ws.terminate()
         reject(e)
       })
     })
 
-    this.ws.on('close', (e) => {
-      this.logger.warn('socket closed', e)
+    this.ws.on('close', (code) => {
+      this.logger.warn(`socket connection to ${node} closed with code: ${code}`)
       this.wsConnected = false
+      this.wsConnectedNode = undefined
       clearInterval(this.pingIntervalId)
+      if (!BaseBlockbook.WS_NORMAL_CLOSURE_CODES.includes(code) && this.reconnectDelayMs > 0) {
+        const reconnectMs = Math.round(this.reconnectDelayMs * (1 + Math.random()))
+        this.logger.log(`unexpected socket closure, reconnecting in ${reconnectMs}ms`)
+        setTimeout(() => this.connect(), reconnectMs)
+      }
     })
     this.ws.on('error', (e) => {
-      this.logger.warn('socket error ', e)
-      this.wsConnected = false
-      this.ws.close()
+      this.logger.warn(`socket error for ${node}`, e)
     })
 
     // Parse all incoming messages and forward them to any pending requests or subscriptions
     this.ws.on('message', (data) => {
       if (this.debug) {
-        this.logger.debug('socket message', data)
+        this.logger.debug(`socket message from ${node}`, data)
       }
       if (!isString(data)) {
         this.logger.error(`Unrecognized websocket data type ${typeof data} received from ${node}`)
@@ -240,6 +253,8 @@ export abstract class BaseBlockbook<
         this.ws.terminate() // force close
       }
     }, 25000)
+
+    return node
   }
 
   /* Close the websocket or do nothing if not connected */

@@ -148,6 +148,18 @@ export abstract class BaseBlockbook<
     return result
   }
 
+  private reconnect(baseDelay: number) {
+    const reconnectMs = Math.round(baseDelay * (1 + Math.random()))
+    this.logger.log(`socket reconnecting in ${reconnectMs/1000}s to one of`, this.nodes)
+    setTimeout(async () => {
+      try {
+        await this.connect()
+      } catch (e) {
+        this.reconnect(Math.max(60 * 1000, baseDelay * 2))
+      }
+    }, reconnectMs)
+  }
+
   /** Establish a websocket connection to a node and return the node url if successful */
   async connect(): Promise<string> {
     if (this.wsConnectedNode) {
@@ -171,7 +183,7 @@ export abstract class BaseBlockbook<
     // Wait for the connection before resolving
     await new Promise<void>((resolve, reject) => {
       this.ws = new WebSocket(node, { headers: { 'user-agent': USER_AGENT } })
-      this.ws.once('open', (e) => {
+      this.ws.once('open', () => {
         this.logger.log(`socket connected to ${node}`)
         this.wsConnected = true
         this.wsConnectedNode = node
@@ -190,9 +202,7 @@ export abstract class BaseBlockbook<
       this.wsConnectedNode = undefined
       clearInterval(this.pingIntervalId)
       if (!BaseBlockbook.WS_NORMAL_CLOSURE_CODES.includes(code) && this.reconnectDelayMs > 0) {
-        const reconnectMs = Math.round(this.reconnectDelayMs * (1 + Math.random()))
-        this.logger.log(`unexpected socket closure, reconnecting in ${reconnectMs}ms`)
-        setTimeout(() => this.connect(), reconnectMs)
+        this.reconnect(this.reconnectDelayMs)
       }
     })
     this.ws.on('error', (e) => {

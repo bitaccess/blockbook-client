@@ -6,9 +6,9 @@ const ADDRESS = '0xFc32E838dD435c1904C3AAD640Dc7B419e9c891d'
 const TXID = '0xf09499a7e72ccf66a0cac01eeb5f5616f275dd4f103e3c0415fbb6e1997ed373'
 const RAW_TX = '0xf870830162988502540be40083186a0094fc32e838dd435c1904c3aad640dc7b419e9c891d8801e062bbbd1d11008026a01f4ba49998c3f4f34ffea6e05eb94bca642e532f776f28fa10c32e1081d42673a01016ad652bb3b4a3b9b68bd81fe48a15b3f1b53385434e395d3990a396652238'
 
-describe('BlockbookBitcoin', () => {
+describe('BlockbookEthereum', () => {
   const bb = new BlockbookEthereum({
-    nodes: ['eth1.trezor.io'],
+    nodes: ['eth1.trezor.io', 'eth2.trezor.io'],
   })
   describe('getStatus', () => {
     it('succeeds', async () => {

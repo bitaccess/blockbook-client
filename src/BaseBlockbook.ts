@@ -41,13 +41,30 @@ export abstract class BaseBlockbook<
   AddressDetailsTxids,
   AddressDetailsTxs,
 > {
+  /** Blockbook URIs */
   nodes: string[]
+
+  /** Set to true to turn off response type validation */
   disableTypeValidation: boolean
+
+  /** Maximum number of milliseconds to wait for both http and ws requests to respond */
   requestTimeoutMs: number
+
+  /**
+   * Base millisecond delay for exponential backoff reconnect logic.
+   * Set to 0 to not reconnect on unexpected websocket closure
+   */
   reconnectDelayMs: number
+
+  /** Websocket currently connected */
   ws: WebSocket
-  wsConnected: boolean
+
+  /** True if connected with websocket */
+  wsConnected: boolean = false
+
+  /** Blockbook URI websocket is currently connected to */
   wsConnectedNode?: string
+
   logger: Logger
   debug: boolean
 
@@ -85,7 +102,7 @@ export abstract class BaseBlockbook<
     // fail fast by default
     this.requestTimeoutMs = config.requestTimeoutMs || 5000
 
-    // reconnect to failed ws quickly
+    // reconnect to failed ws quickly by default
     this.reconnectDelayMs = config.reconnectDelayMs || 2000
 
     // prefix all log messages with package name. Default to null -> no logging
@@ -124,20 +141,23 @@ export abstract class BaseBlockbook<
   wsRequest(method: string, params?: object, idOption?: string): Promise<any> {
     const id = idOption ?? (this.requestCounter++).toString()
     const req = {
-        id,
-        method,
-        params
+      id,
+      method,
+      params
     }
     return new Promise((resolve, reject) => {
       setTimeout(() => {
-        delete this.pendingWsRequests[id]
-        reject(`Timeout waiting for websocket ${method} response (id: ${id})`)
+        if (this.pendingWsRequests[id]?.reject === reject) { // Verify the same request is still pending
+          delete this.pendingWsRequests[id]
+          reject(new Error(`Timeout waiting for websocket ${method} response (id: ${id})`))
+        }
       }, this.requestTimeoutMs)
       this.pendingWsRequests[id] = { resolve, reject }
       this.ws.send(JSON.stringify(req))
     })
   }
 
+  /** Subscribe to a websocket method */
   async subscribe(method: string, params: object, callback: (result: any) => void) {
     const id = (this.requestCounter++).toString()
     this.subscriptionIdToData[id] = { callback, method, params }
@@ -151,14 +171,15 @@ export abstract class BaseBlockbook<
     return result
   }
 
-  async unsubscribe(method: string, params: object, subscribedMethod: string) {
-    const subscriptionId = this.subscribtionMethodToId[subscribedMethod]
+  /** Unsubscribe from a particular websocket method that was previously subscribed */
+  async unsubscribe(method: string) {
+    const subscriptionId = this.subscribtionMethodToId[method]
     if (isUndefined(subscriptionId)) {
       return { subscribed: false }
     }
-    delete this.subscribtionMethodToId[subscribedMethod]
+    delete this.subscribtionMethodToId[method]
     delete this.subscriptionIdToData[subscriptionId]
-    return this.wsRequest(method, params, subscriptionId)
+    return this.wsRequest(`un${method}`, {}, subscriptionId)
   }
 
   /**
@@ -179,6 +200,15 @@ export abstract class BaseBlockbook<
         this.reconnect(Math.max(60 * 1000, baseDelay * 2), existingSubscriptions)
       }
     }, reconnectMs)
+  }
+
+  /** Reject all pending websocket requests with a given reason */
+  private rejectAllPendingRequests(reason: string) {
+    for (let pendingRequestId of Object.keys(this.pendingWsRequests)) {
+      const { reject } = this.pendingWsRequests[pendingRequestId]
+      delete this.pendingWsRequests[pendingRequestId]
+      reject(new Error(reason))
+    }
   }
 
   /** Establish a websocket connection to a node and return the node url if successful */
@@ -221,6 +251,7 @@ export abstract class BaseBlockbook<
       this.wsConnected = false
       this.wsConnectedNode = undefined
       clearInterval(this.pingIntervalId)
+      this.rejectAllPendingRequests('socket closed while waiting for response')
       if (!BaseBlockbook.WS_NORMAL_CLOSURE_CODES.includes(code) && this.reconnectDelayMs > 0) {
         this.reconnect(this.reconnectDelayMs, Object.values(this.subscriptionIdToData))
       }
@@ -256,11 +287,11 @@ export abstract class BaseBlockbook<
       }
       const pendingRequest = this.pendingWsRequests[id]
       if (pendingRequest) {
-          delete this.pendingWsRequests[id]
-          if (errorMessage) {
-            return pendingRequest.reject(new Error(errorMessage))
-          }
-          return pendingRequest.resolve(result)
+        delete this.pendingWsRequests[id]
+        if (errorMessage) {
+          return pendingRequest.reject(new Error(errorMessage))
+        }
+        return pendingRequest.resolve(result)
       }
       const activeSubscription = this.subscriptionIdToData[id]
       if (activeSubscription) {
@@ -450,7 +481,7 @@ export abstract class BaseBlockbook<
    */
   async unsubscribeAddresses(): Promise<{ subscribed: false }> {
     this.assertWsConnected('call unsubscribeAddresses')
-    return this.unsubscribe('unsubscribeAddresses', {}, 'subscribeAddresses')
+    return this.unsubscribe('subscribeAddresses')
   }
 
   /**
@@ -466,6 +497,6 @@ export abstract class BaseBlockbook<
    */
   async unsubscribeNewBlock(): Promise<{ subscribed: false }> {
     this.assertWsConnected('call unsubscribeNewBlock')
-    return this.unsubscribe('unsubscribeNewBlock', {}, 'subscribeNewBlock')
+    return this.unsubscribe('subscribeNewBlock')
   }
 }

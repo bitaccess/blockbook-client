@@ -1,6 +1,6 @@
 import { BlockHashResponseWs, GetBlockOptions, SubscribeAddressesEvent, SubscribeNewBlockEvent } from './types/common';
 import request from 'request-promise-native'
-import { assertType, DelegateLogger, isMatchingError, isString, Logger } from '@faast/ts-common'
+import { assertType, DelegateLogger, isMatchingError, isString, isUndefined, Logger } from '@faast/ts-common'
 import * as t from 'io-ts'
 import WebSocket from 'ws'
 
@@ -21,6 +21,10 @@ const xpubDetailsCodecs = {
   txs: XpubDetailsTxs,
 }
 
+type PendingWsRequests = { [id: string]: { resolve: Resolve, reject: Reject } }
+type SubscriptionData = { callback: Resolve, method: string, params: object }
+type SubscriptionIdToData = { [id: string]: SubscriptionData }
+
 /**
  * Blockbook client with support for both http and ws with multi-node and type validation support.
  *
@@ -37,22 +41,38 @@ export abstract class BaseBlockbook<
   AddressDetailsTxids,
   AddressDetailsTxs,
 > {
+  /** Blockbook URIs */
   nodes: string[]
+
+  /** Set to true to turn off response type validation */
   disableTypeValidation: boolean
+
+  /** Maximum number of milliseconds to wait for both http and ws requests to respond */
   requestTimeoutMs: number
+
+  /**
+   * Base millisecond delay for exponential backoff reconnect logic.
+   * Set to 0 to not reconnect on unexpected websocket closure
+   */
   reconnectDelayMs: number
+
+  /** Websocket currently connected */
   ws: WebSocket
-  wsConnected: boolean
+
+  /** True if connected with websocket */
+  wsConnected: boolean = false
+
+  /** Blockbook URI websocket is currently connected to */
   wsConnectedNode?: string
+
   logger: Logger
   debug: boolean
 
   private requestCounter = 0
   private pingIntervalId: NodeJS.Timeout
-  private pendingWsRequests: { [id: string]: { resolve: Resolve, reject: Reject } } = {}
-  private subscriptions: { [id: string]: { callback: Resolve, method: string } } = {}
-  private subscribeNewBlockId = ''
-  private subscribeAddressesId = ''
+  private pendingWsRequests: PendingWsRequests = {}
+  private subscriptionIdToData: SubscriptionIdToData = {}
+  private subscribtionMethodToId: Record<string, string> = {}
 
   static WS_NORMAL_CLOSURE_CODES = [1000, 1005]
 
@@ -82,7 +102,7 @@ export abstract class BaseBlockbook<
     // fail fast by default
     this.requestTimeoutMs = config.requestTimeoutMs || 5000
 
-    // reconnect to failed ws quickly
+    // reconnect to failed ws quickly by default
     this.reconnectDelayMs = config.reconnectDelayMs || 2000
 
     // prefix all log messages with package name. Default to null -> no logging
@@ -101,14 +121,14 @@ export abstract class BaseBlockbook<
 
 
   /** Load balance using round robin. Helps any retry logic fallback to different nodes */
-  private getNode() {
+  private pickNode() {
     return this.nodes[this.requestCounter++ % this.nodes.length]
   }
 
   async httpRequest(
     method: 'GET' | 'POST', path: string, params?: object, body?: object, options?: Partial<request.Options>,
   ) {
-    const response = jsonRequest(this.getNode(), method, path, params, body, {
+    const response = jsonRequest(this.pickNode(), method, path, params, body, {
       timeout: this.requestTimeoutMs,
       ...options,
     })
@@ -121,43 +141,74 @@ export abstract class BaseBlockbook<
   wsRequest(method: string, params?: object, idOption?: string): Promise<any> {
     const id = idOption ?? (this.requestCounter++).toString()
     const req = {
-        id,
-        method,
-        params
+      id,
+      method,
+      params
     }
     return new Promise((resolve, reject) => {
       setTimeout(() => {
-        delete this.pendingWsRequests[id]
-        reject(`Timeout waiting for websocket ${method} response (id: ${id})`)
+        if (this.pendingWsRequests[id]?.reject === reject) { // Verify the same request is still pending
+          delete this.pendingWsRequests[id]
+          reject(new Error(`Timeout waiting for websocket ${method} response (id: ${id})`))
+        }
       }, this.requestTimeoutMs)
       this.pendingWsRequests[id] = { resolve, reject }
       this.ws.send(JSON.stringify(req))
     })
   }
 
+  /** Subscribe to a websocket method */
   async subscribe(method: string, params: object, callback: (result: any) => void) {
     const id = (this.requestCounter++).toString()
-    this.subscriptions[id] = { callback, method }
+    this.subscriptionIdToData[id] = { callback, method, params }
     const result = await this.wsRequest(method, params, id)
-    return [id, result]
-  }
-
-  unsubscribe(method: string, params: object, id: string) {
-    const result = this.wsRequest(method, params, id)
-    delete this.subscriptions[id]
+    // Only one of each subscription can exist at once so delete the old one if it exists
+    const oldSubscriptionId = this.subscribtionMethodToId[method]
+    if (oldSubscriptionId) {
+      delete this.subscriptionIdToData[oldSubscriptionId]
+    }
+    this.subscribtionMethodToId[method] = id
     return result
   }
 
-  private reconnect(baseDelay: number) {
+  /** Unsubscribe from a particular websocket method that was previously subscribed */
+  async unsubscribe(method: string) {
+    const subscriptionId = this.subscribtionMethodToId[method]
+    if (isUndefined(subscriptionId)) {
+      return { subscribed: false }
+    }
+    delete this.subscribtionMethodToId[method]
+    delete this.subscriptionIdToData[subscriptionId]
+    return this.wsRequest(`un${method}`, {}, subscriptionId)
+  }
+
+  /**
+   * Recursively reconnect to websocket with exponential backoff delay.
+   * Resubscribe existingSubscriptions upon reconnecting.
+   */
+  private reconnect(baseDelay: number, existingSubscriptions: SubscriptionData[]) {
     const reconnectMs = Math.round(baseDelay * (1 + Math.random()))
     this.logger.log(`socket reconnecting in ${reconnectMs/1000}s to one of`, this.nodes)
     setTimeout(async () => {
       try {
         await this.connect()
+        // Resubscribe to subscriptions that existed before disconnection
+        for (let subscription of existingSubscriptions) {
+          await this.subscribe(subscription.method, subscription.params, subscription.callback)
+        }
       } catch (e) {
-        this.reconnect(Math.max(60 * 1000, baseDelay * 2))
+        this.reconnect(Math.max(60 * 1000, baseDelay * 2), existingSubscriptions)
       }
     }, reconnectMs)
+  }
+
+  /** Reject all pending websocket requests with a given reason */
+  private rejectAllPendingRequests(reason: string) {
+    for (let pendingRequestId of Object.keys(this.pendingWsRequests)) {
+      const { reject } = this.pendingWsRequests[pendingRequestId]
+      delete this.pendingWsRequests[pendingRequestId]
+      reject(new Error(reason))
+    }
   }
 
   /** Establish a websocket connection to a node and return the node url if successful */
@@ -166,10 +217,9 @@ export abstract class BaseBlockbook<
       return this.wsConnectedNode
     }
     this.pendingWsRequests = {}
-    this.subscriptions = {}
-    this.subscribeNewBlockId = ''
-    this.subscribeAddressesId = ''
-    let node = this.getNode()
+    this.subscriptionIdToData = {}
+    this.subscribtionMethodToId = {}
+    let node = this.pickNode()
     if (node.startsWith('http')) {
       node = node.replace('http', 'ws')
     }
@@ -201,8 +251,9 @@ export abstract class BaseBlockbook<
       this.wsConnected = false
       this.wsConnectedNode = undefined
       clearInterval(this.pingIntervalId)
+      this.rejectAllPendingRequests('socket closed while waiting for response')
       if (!BaseBlockbook.WS_NORMAL_CLOSURE_CODES.includes(code) && this.reconnectDelayMs > 0) {
-        this.reconnect(this.reconnectDelayMs)
+        this.reconnect(this.reconnectDelayMs, Object.values(this.subscriptionIdToData))
       }
     })
     this.ws.on('error', (e) => {
@@ -236,13 +287,13 @@ export abstract class BaseBlockbook<
       }
       const pendingRequest = this.pendingWsRequests[id]
       if (pendingRequest) {
-          delete this.pendingWsRequests[id]
-          if (errorMessage) {
-            return pendingRequest.reject(new Error(errorMessage))
-          }
-          return pendingRequest.resolve(result)
+        delete this.pendingWsRequests[id]
+        if (errorMessage) {
+          return pendingRequest.reject(new Error(errorMessage))
+        }
+        return pendingRequest.resolve(result)
       }
-      const activeSubscription = this.subscriptions[id]
+      const activeSubscription = this.subscriptionIdToData[id]
       if (activeSubscription) {
         if (errorMessage) {
           this.logger.error(
@@ -422,9 +473,7 @@ export abstract class BaseBlockbook<
     cb: (e: SubscribeAddressesEvent) => void,
   ): Promise<{ subscribed: true }> {
     this.assertWsConnected('call subscribeAddresses')
-    const [subscriptionId, result] = await this.subscribe('subscribeAddresses', { addresses }, cb)
-    this.subscribeAddressesId = subscriptionId
-    return result
+    return this.subscribe('subscribeAddresses', { addresses }, cb)
   }
 
   /**
@@ -432,7 +481,7 @@ export abstract class BaseBlockbook<
    */
   async unsubscribeAddresses(): Promise<{ subscribed: false }> {
     this.assertWsConnected('call unsubscribeAddresses')
-    return this.unsubscribe('unsubscribeAddresses', {}, this.subscribeAddressesId)
+    return this.unsubscribe('subscribeAddresses')
   }
 
   /**
@@ -440,9 +489,7 @@ export abstract class BaseBlockbook<
    */
   async subscribeNewBlock(cb: (e: SubscribeNewBlockEvent) => void): Promise<{ subscribed: true }> {
     this.assertWsConnected('call subscribeNewBlock')
-    const [subscriptionId, result] = await this.subscribe('subscribeNewBlock', {}, cb)
-    this.subscribeNewBlockId = subscriptionId
-    return result
+    return this.subscribe('subscribeNewBlock', {}, cb)
   }
 
   /**
@@ -450,6 +497,6 @@ export abstract class BaseBlockbook<
    */
   async unsubscribeNewBlock(): Promise<{ subscribed: false }> {
     this.assertWsConnected('call unsubscribeNewBlock')
-    return this.unsubscribe('unsubscribeNewBlock', {}, this.subscribeNewBlockId)
+    return this.unsubscribe('subscribeNewBlock')
   }
 }

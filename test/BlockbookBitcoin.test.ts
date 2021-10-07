@@ -1,6 +1,6 @@
 import { BlockbookBitcoin } from '../src'
 
-const NODES = ['btc1.trezor.io', 'btc2.trezor.io', 'btc3.trezor.io']
+const NODES = process.env.BITCOIN_SERVER_URL?.split(',') ?? ['btc1.trezor.io', 'btc2.trezor.io', 'btc3.trezor.io']
 const BLOCK_NUMBER = 666666
 const BLOCK_HASH = '0000000000000000000b7b8574bc6fd285825ec2dbcbeca149121fc05b0c828c'
 const XPUB = 'xpub661MyMwAqRbcFtXgS5sYJABqqG9YLmC4Q1Rdap9gSE8NqtwybGhePY2gZ29ESFjqJoCu1Rupje8YtGqsefD265TMg7usUDFdp6W1EGMcet8'
@@ -74,6 +74,12 @@ describe('BlockbookBitcoin', () => {
         await expect(bb.sendTx(RAW_TX)).rejects.toThrow()
       })
     })
+    describe('estimateFee', () => {
+      it('succeeds', async () => {
+        const result = Number.parseFloat(await bb.estimateFee(1))
+        expect(result).toBeGreaterThan(0)
+      })
+    })
   }
 
   describe('http', () => {
@@ -87,7 +93,7 @@ describe('BlockbookBitcoin', () => {
       })
       it('throws for bad node then succeeds for good', async () => {
         const bb2 = new BlockbookBitcoin({
-          nodes: ['btc1234.trezor.io', 'btc1.trezor.io'],
+          nodes: ['btc1234.trezor.io', ...NODES],
         })
         await expect(bb2.getStatus()).rejects.toThrow('ENOTFOUND')
         expect(await bb2.getStatus()).toBeDefined()
@@ -118,7 +124,7 @@ describe('BlockbookBitcoin', () => {
       })
       it('throws for bad node then succeeds for good', async () => {
         const bb2 = new BlockbookBitcoin({
-          nodes: ['btc1234.trezor.io', 'btc1.trezor.io'],
+          nodes: ['btc1234.trezor.io', ...NODES],
         })
         await expect(bb2.connect()).rejects.toThrow('ENOTFOUND')
         try {

@@ -1,4 +1,6 @@
-import { BlockHashResponseWs, GetBlockOptions, SubscribeAddressesEvent, SubscribeNewBlockEvent } from './types/common';
+import {
+  BlockHashResponseWs, EstimateFeeResponse, GetBlockOptions, SubscribeAddressesEvent, SubscribeNewBlockEvent
+} from './types/common'
 import request from 'request-promise-native'
 import { assertType, DelegateLogger, isMatchingError, isString, isUndefined, Logger } from '@faast/ts-common'
 import * as t from 'io-ts'
@@ -258,8 +260,11 @@ export abstract class BaseBlockbook<
       })
     })
     // Wait for the connection before resolving
-    await this.wsPendingConnectPromise
-    delete this.wsPendingConnectPromise
+    try {
+      await this.wsPendingConnectPromise
+    } finally {
+      delete this.wsPendingConnectPromise
+    }
 
     this.ws.on('close', (code) => {
       this.logger.warn(`socket connection to ${node} closed with code: ${code}`)
@@ -477,6 +482,12 @@ export abstract class BaseBlockbook<
 
     const { result: txHash } = this.doAssertType(SendTxSuccess, response)
     return txHash
+  }
+
+  async estimateFee(blockTarget: number): Promise<string> {
+    const response = await this.httpRequest('GET', `/api/v2/estimatefee/${blockTarget}`)
+    const { result: fee } = this.doAssertType(EstimateFeeResponse, response)
+    return fee
   }
 
   /**

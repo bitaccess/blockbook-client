@@ -57,12 +57,14 @@ export const SpecificTxBitcoinVin = t.type({
 }, 'SpecificTxBitcoinVin')
 export type SpecificTxBitcoinVin = t.TypeOf<typeof SpecificTxBitcoinVin>
 
-export const SpecificTxBitcoinVoutScriptPubKey = t.type({
+export const SpecificTxBitcoinVoutScriptPubKey = requiredOptionalCodec({
   asm: t.string, // 'OP_HASH160 2fa547b613bf425f0308933bbaac5c67899c745d OP_EQUAL'
   hex: t.string, // 'a9142fa547b613bf425f0308933bbaac5c67899c745d87'
-  reqSigs: t.number, // 1
   type: t.string, // 'scripthash'
+}, {
+  reqSigs: t.number, // 1
   addresses: t.array(t.string), // ['362wgRYYj8ybZwuQzxE2PNykjJAwStKARz']
+  address: t.string, // 362wgRYYj8ybZwuQzxE2PNykjJAwStKARz
 }, 'SpecificTxBitcoinVoutScriptPubKey')
 export type SpecificTxBitcoinVoutScriptPubKey = t.TypeOf<typeof SpecificTxBitcoinVoutScriptPubKey>
 

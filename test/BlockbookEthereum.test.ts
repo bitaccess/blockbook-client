@@ -1,5 +1,6 @@
 import { BlockbookEthereum } from '../src'
 
+const NODES = process.env.ETHEREUM_SERVER_URL?.split(',') ?? ['eth1.trezor.io', 'eth2.trezor.io']
 const BLOCK_NUMBER = 1000000
 const BLOCK_HASH = '0x8e38b4dbf6b11fcc3b9dee84fb7986e29ca0a02cecd8977c161ff7333329681e'
 const ADDRESS = '0xFc32E838dD435c1904C3AAD640Dc7B419e9c891d'
@@ -8,7 +9,7 @@ const RAW_TX = '0xf870830162988502540be40083186a0094fc32e838dd435c1904c3aad640dc
 
 describe('BlockbookEthereum', () => {
   const bb = new BlockbookEthereum({
-    nodes: ['eth1.trezor.io', 'eth2.trezor.io'],
+    nodes: NODES,
   })
   describe('getStatus', () => {
     it('succeeds', async () => {
@@ -60,6 +61,12 @@ describe('BlockbookEthereum', () => {
   describe('sendTx throws on already broadcast', () => {
     it('succeeds', async () => {
       await expect(bb.sendTx(RAW_TX)).rejects.toThrow('nonce too low')
+    })
+  })
+  describe('estimateFee', () => {
+    it('succeeds', async () => {
+      const result = Number.parseFloat(await bb.estimateFee(1))
+      expect(result).toBeGreaterThan(0)
     })
   })
 })

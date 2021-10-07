@@ -1,11 +1,11 @@
-import {
-  BlockHashResponseWs, EstimateFeeResponse, GetBlockOptions, SubscribeAddressesEvent, SubscribeNewBlockEvent
-} from './types/common'
-import request from 'request-promise-native'
-import { assertType, DelegateLogger, isMatchingError, isString, isUndefined, Logger } from '@faast/ts-common'
+import { AxiosRequestConfig } from 'axios'
+import { assertType, DelegateLogger, isString, isUndefined, Logger } from '@faast/ts-common'
 import * as t from 'io-ts'
 import WebSocket from 'ws'
 
+import {
+  BlockHashResponseWs, EstimateFeeResponse, GetBlockOptions, SubscribeAddressesEvent, SubscribeNewBlockEvent
+} from './types/common'
 import {
   XpubDetailsBasic, XpubDetailsTokens, XpubDetailsTokenBalances, XpubDetailsTxids, XpubDetailsTxs,
   BlockbookConfig, SystemInfo, BlockHashResponse, GetAddressDetailsOptions,
@@ -136,7 +136,11 @@ export abstract class BaseBlockbook<
   }
 
   async httpRequest(
-    method: 'GET' | 'POST', path: string, params?: object, body?: object, options?: Partial<request.Options>,
+    method: 'GET' | 'POST',
+    path: string,
+    params?: object,
+    body?: AxiosRequestConfig['data'],
+    options?: Partial<AxiosRequestConfig>,
   ) {
     const response = jsonRequest(this.pickNode(), method, path, params, body, {
       timeout: this.requestTimeoutMs,
@@ -478,7 +482,7 @@ export abstract class BaseBlockbook<
     // NOTE: sendtx POST doesn't work without trailing slash, and sendtx GET fails for large txs
     const response = this.wsConnected
       ? await this.wsRequest('sendTransaction', { hex: txHex })
-      : await this.httpRequest('POST', '/api/v2/sendtx/', undefined, undefined, { body: txHex, json: false })
+      : await this.httpRequest('POST', '/api/v2/sendtx/', undefined, txHex)
 
     const { result: txHash } = this.doAssertType(SendTxSuccess, response)
     return txHash

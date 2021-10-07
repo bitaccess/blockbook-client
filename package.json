@@ -39,7 +39,7 @@
     "build": "tsc --build ./tsconfig.build.json && rollup -c rollup.config.js",
     "start": "rollup -c rollup.config.ts -w",
     "pretest": "npm run lint",
-    "test": "jest --runInBand --detectOpenHandles",
+    "test": "jest --runInBand",
     "report-coverage": "cat ./coverage/lcov.info | coveralls",
     "precommit": "lint-staged",
     "preversion": "bin/preversion.sh",
@@ -53,7 +53,6 @@
     "@types/jest": "^27.0.2",
     "@types/node": "^10.17.3",
     "@types/qs": "^6.9.0",
-    "@types/request-promise-native": "^1.0.17",
     "@types/ws": "^7.4.1",
     "coveralls": "^3.0.2",
     "jest": "^27.2.4",
@@ -76,10 +75,9 @@
   },
   "dependencies": {
     "@faast/ts-common": "^0.6.0",
+    "axios": "^0.22.0",
     "io-ts": "^1.10.4",
     "qs": "^6.9.1",
-    "request": "^2.88.0",
-    "request-promise-native": "^1.0.8",
     "ws": "^7.5.5"
   }
 }

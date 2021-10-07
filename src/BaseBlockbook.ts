@@ -68,12 +68,20 @@ export abstract class BaseBlockbook<
   logger: Logger
   debug: boolean
 
+  /** Count all requests. Used to load balance multiple nodes and identify ws messages */
   private requestCounter = 0
+  /** Pending websocket connect promise. Used to prevent connect race case */
+  private wsPendingConnectPromise?: Promise<void>
+  /** Interval to ping the websocket on to keep alive */
   private pingIntervalId: NodeJS.Timeout
+  /** Pending websocket request promise handlers mapped by id */
   private pendingWsRequests: PendingWsRequests = {}
+  /** Existing websocket subscriptions mapped by id */
   private subscriptionIdToData: SubscriptionIdToData = {}
+  /** Map existing subscription methods to ids */
   private subscribtionMethodToId: Record<string, string> = {}
 
+  /** Websocket closure codes that won't trigger automatic reconnect */
   static WS_NORMAL_CLOSURE_CODES = [1000, 1005]
 
   constructor(
@@ -213,6 +221,10 @@ export abstract class BaseBlockbook<
 
   /** Establish a websocket connection to a node and return the node url if successful */
   async connect(): Promise<string> {
+    if (this.wsPendingConnectPromise) {
+      await this.wsPendingConnectPromise
+      // If successful, wsConnectedNode should be set at this point
+    }
     if (this.wsConnectedNode) {
       return this.wsConnectedNode
     }
@@ -230,8 +242,8 @@ export abstract class BaseBlockbook<
       node += '/websocket'
     }
 
-    // Wait for the connection before resolving
-    await new Promise<void>((resolve, reject) => {
+    // Store the promise before awaiting to prevent a race case
+    this.wsPendingConnectPromise = new Promise<void>((resolve, reject) => {
       this.ws = new WebSocket(node, { headers: { 'user-agent': USER_AGENT } })
       this.ws.once('open', () => {
         this.logger.log(`socket connected to ${node}`)
@@ -245,6 +257,9 @@ export abstract class BaseBlockbook<
         reject(e)
       })
     })
+    // Wait for the connection before resolving
+    await this.wsPendingConnectPromise
+    delete this.wsPendingConnectPromise
 
     this.ws.on('close', (code) => {
       this.logger.warn(`socket connection to ${node} closed with code: ${code}`)

@@ -1,6 +1,6 @@
 {
   "name": "blockbook-client",
-  "version": "0.5.2",
+  "version": "0.6.0",
   "description": "Client for interacting with Trezor's blockbook API",
   "main": "dist/index.cjs.js",
   "module": "dist/index.es.js",

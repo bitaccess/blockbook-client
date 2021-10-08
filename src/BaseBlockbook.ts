@@ -1,9 +1,11 @@
-import { BlockHashResponseWs, GetBlockOptions, SubscribeAddressesEvent, SubscribeNewBlockEvent } from './types/common';
-import request from 'request-promise-native'
-import { assertType, DelegateLogger, isMatchingError, isString, isUndefined, Logger } from '@faast/ts-common'
+import { AxiosRequestConfig } from 'axios'
+import { assertType, DelegateLogger, isString, isUndefined, Logger } from '@faast/ts-common'
 import * as t from 'io-ts'
 import WebSocket from 'ws'
 
+import {
+  BlockHashResponseWs, EstimateFeeResponse, GetBlockOptions, SubscribeAddressesEvent, SubscribeNewBlockEvent
+} from './types/common'
 import {
   XpubDetailsBasic, XpubDetailsTokens, XpubDetailsTokenBalances, XpubDetailsTxids, XpubDetailsTxs,
   BlockbookConfig, SystemInfo, BlockHashResponse, GetAddressDetailsOptions,
@@ -68,12 +70,20 @@ export abstract class BaseBlockbook<
   logger: Logger
   debug: boolean
 
+  /** Count all requests. Used to load balance multiple nodes and identify ws messages */
   private requestCounter = 0
+  /** Pending websocket connect promise. Used to prevent connect race case */
+  private wsPendingConnectPromise?: Promise<void>
+  /** Interval to ping the websocket on to keep alive */
   private pingIntervalId: NodeJS.Timeout
+  /** Pending websocket request promise handlers mapped by id */
   private pendingWsRequests: PendingWsRequests = {}
+  /** Existing websocket subscriptions mapped by id */
   private subscriptionIdToData: SubscriptionIdToData = {}
+  /** Map existing subscription methods to ids */
   private subscribtionMethodToId: Record<string, string> = {}
 
+  /** Websocket closure codes that won't trigger automatic reconnect */
   static WS_NORMAL_CLOSURE_CODES = [1000, 1005]
 
   constructor(
@@ -126,7 +136,11 @@ export abstract class BaseBlockbook<
   }
 
   async httpRequest(
-    method: 'GET' | 'POST', path: string, params?: object, body?: object, options?: Partial<request.Options>,
+    method: 'GET' | 'POST',
+    path: string,
+    params?: object,
+    body?: AxiosRequestConfig['data'],
+    options?: Partial<AxiosRequestConfig>,
   ) {
     const response = jsonRequest(this.pickNode(), method, path, params, body, {
       timeout: this.requestTimeoutMs,
@@ -213,6 +227,10 @@ export abstract class BaseBlockbook<
 
   /** Establish a websocket connection to a node and return the node url if successful */
   async connect(): Promise<string> {
+    if (this.wsPendingConnectPromise) {
+      await this.wsPendingConnectPromise
+      // If successful, wsConnectedNode should be set at this point
+    }
     if (this.wsConnectedNode) {
       return this.wsConnectedNode
     }
@@ -230,8 +248,8 @@ export abstract class BaseBlockbook<
       node += '/websocket'
     }
 
-    // Wait for the connection before resolving
-    await new Promise<void>((resolve, reject) => {
+    // Store the promise before awaiting to prevent a race case
+    this.wsPendingConnectPromise = new Promise<void>((resolve, reject) => {
       this.ws = new WebSocket(node, { headers: { 'user-agent': USER_AGENT } })
       this.ws.once('open', () => {
         this.logger.log(`socket connected to ${node}`)
@@ -245,6 +263,12 @@ export abstract class BaseBlockbook<
         reject(e)
       })
     })
+    // Wait for the connection before resolving
+    try {
+      await this.wsPendingConnectPromise
+    } finally {
+      delete this.wsPendingConnectPromise
+    }
 
     this.ws.on('close', (code) => {
       this.logger.warn(`socket connection to ${node} closed with code: ${code}`)
@@ -458,10 +482,16 @@ export abstract class BaseBlockbook<
     // NOTE: sendtx POST doesn't work without trailing slash, and sendtx GET fails for large txs
     const response = this.wsConnected
       ? await this.wsRequest('sendTransaction', { hex: txHex })
-      : await this.httpRequest('POST', '/api/v2/sendtx/', undefined, undefined, { body: txHex, json: false })
+      : await this.httpRequest('POST', '/api/v2/sendtx/', undefined, txHex)
 
     const { result: txHash } = this.doAssertType(SendTxSuccess, response)
     return txHash
+  }
+
+  async estimateFee(blockTarget: number): Promise<string> {
+    const response = await this.httpRequest('GET', `/api/v2/estimatefee/${blockTarget}`)
+    const { result: fee } = this.doAssertType(EstimateFeeResponse, response)
+    return fee
   }
 
   /**

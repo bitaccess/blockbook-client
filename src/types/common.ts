@@ -563,3 +563,8 @@ export const SendTxError = t.type(
   'SendTxFailed'
 )
 export type SendTxError = t.TypeOf<typeof SendTxError>
+
+export const EstimateFeeResponse = t.type({
+  result: t.string,
+}, 'EstimateFeeResponse')
+export type EstimateFeeResponse = t.TypeOf<typeof EstimateFeeResponse>

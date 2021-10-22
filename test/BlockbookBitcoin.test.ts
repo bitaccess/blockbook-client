@@ -80,6 +80,13 @@ describe('BlockbookBitcoin', () => {
         expect(result).toBeGreaterThan(0)
       })
     })
+    describe('getBestBlock', () => {
+      it('succeeds', async () => {
+        const result = await bb.getBestBlock()
+        expect(result.height).toBeGreaterThan(0)
+        expect(result.hash).toMatch(/^[0-9a-f]{64}$/)
+      })
+    })
   }
 
   describe('http', () => {

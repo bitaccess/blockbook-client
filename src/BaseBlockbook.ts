@@ -374,6 +374,15 @@ export abstract class BaseBlockbook<
     return this.doAssertType(SystemInfo, response)
   }
 
+  async getBestBlock(): Promise<{ height: number, hash: string }> {
+    if (this.wsConnected) {
+      const info = await this.getInfo()
+      return { height: info.bestHeight, hash: info.bestHash }
+    }
+    const status = await this.getStatus()
+    return { height: status.blockbook.bestHeight, hash: status.backend.bestBlockHash }
+  }
+
   async getBlockHash(blockNumber: number): Promise<string> {
     if (this.wsConnected) {
       const response = await this.wsRequest('getBlockHash', { height: blockNumber })

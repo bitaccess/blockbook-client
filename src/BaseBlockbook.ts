@@ -24,7 +24,7 @@ const xpubDetailsCodecs = {
 }
 
 type PendingWsRequests = { [id: string]: { resolve: Resolve, reject: Reject } }
-type SubscriptionData = { callback: Resolve, method: string, params: object }
+type SubscriptionData = { callback: (value: any) => void | Promise<void>, method: string, params: object }
 type SubscriptionIdToData = { [id: string]: SubscriptionData }
 
 /**
@@ -172,7 +172,7 @@ export abstract class BaseBlockbook<
   }
 
   /** Subscribe to a websocket method */
-  async subscribe(method: string, params: object, callback: (result: any) => void) {
+  async subscribe(method: string, params: object, callback: (result: any) => void | Promise<void>) {
     const id = (this.requestCounter++).toString()
     this.subscriptionIdToData[id] = { callback, method, params }
     const result = await this.wsRequest(method, params, id)
@@ -325,7 +325,15 @@ export abstract class BaseBlockbook<
             errorMessage,
           )
         }
-        return activeSubscription.callback(result)
+        const maybePromise = activeSubscription.callback(result)
+        if (maybePromise) {
+          maybePromise?.catch((e) => this.logger.error(
+            `Error handling ${activeSubscription.method} subscription data (id: ${id})`,
+            result,
+            e,
+          ))
+        }
+        return
       }
       this.logger.warn(`Unrecognized websocket data (id: ${id}) received from ${node}`, result)
     })
@@ -509,7 +517,7 @@ export abstract class BaseBlockbook<
    */
   async subscribeAddresses(
     addresses: string[],
-    cb: (e: SubscribeAddressesEvent) => void,
+    cb: (e: SubscribeAddressesEvent) => void | Promise<void>,
   ): Promise<{ subscribed: true }> {
     this.assertWsConnected('call subscribeAddresses')
     return this.subscribe('subscribeAddresses', { addresses }, cb)
@@ -526,7 +534,7 @@ export abstract class BaseBlockbook<
   /**
    * ws only - subscribe to new block events
    */
-  async subscribeNewBlock(cb: (e: SubscribeNewBlockEvent) => void): Promise<{ subscribed: true }> {
+  async subscribeNewBlock(cb: (e: SubscribeNewBlockEvent) => void | Promise<void>): Promise<{ subscribed: true }> {
     this.assertWsConnected('call subscribeNewBlock')
     return this.subscribe('subscribeNewBlock', {}, cb)
   }

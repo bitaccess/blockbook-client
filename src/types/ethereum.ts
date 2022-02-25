@@ -1,5 +1,5 @@
 import * as t from 'io-ts'
-import { extendCodec } from '@faast/ts-common'
+import { extendCodec, optional } from '@faast/ts-common'
 import {
   NormalizedTxCommonVin,
   NormalizedTxCommonVout,
@@ -92,11 +92,11 @@ export type SpecificTxEthereum = t.TypeOf<typeof SpecificTxEthereum>
 
 export const TokenDetailsERC20 = t.type(
   {
-    type: TokenDetailsTypeERC20, // 'ERC20',
-    name: t.string, // 'Carrots',
-    contract: t.string, // '0x6e0646b014d99d79f4e875b6723fa8e46becbd15',
-    transfers: t.number, // 1,
-    symbol: t.string, // 'CEN',
+    type: optional(TokenDetailsTypeERC20), // 'ERC20',
+    name: optional(t.string), // 'Carrots',
+    contract: optional(t.string), // '0x6e0646b014d99d79f4e875b6723fa8e46becbd15',
+    transfers: optional(t.number), // 1,
+    symbol: optional(t.string), // 'CEN',
   },
   'TokenDetailsERC20',
 )
@@ -105,7 +105,7 @@ export type TokenDetailsERC20 = t.TypeOf<typeof TokenDetailsERC20>
 export const TokenDetailsERC20Balance = extendCodec(
   TokenDetailsERC20,
   {
-    balance: t.string, // '8503600000000000000'
+    balance: optional(t.string), // '8503600000000000000'
   },
   'TokenDetailsERC20Balance',
 )

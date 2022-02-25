@@ -25,19 +25,13 @@ export class BlockbookEthereum extends BaseBlockbook<
   AddressDetailsEthereumTxs
 > {
   constructor(config: BlockbookConfig) {
-    super(
-      config,
-      NormalizedTxEthereum,
-      SpecificTxEthereum,
-      BlockInfoEthereum,
-      {
-        basic: AddressDetailsEthereumBasic,
-        tokens: AddressDetailsEthereumTokens,
-        tokenBalances: AddressDetailsEthereumTokenBalances,
-        txids: AddressDetailsEthereumTxids,
-        txs: AddressDetailsEthereumTxs,
-      }
-    )
+    super(config, NormalizedTxEthereum, SpecificTxEthereum, BlockInfoEthereum, {
+      basic: AddressDetailsEthereumBasic,
+      tokens: AddressDetailsEthereumTokens,
+      tokenBalances: AddressDetailsEthereumTokenBalances,
+      txids: AddressDetailsEthereumTxids,
+      txs: AddressDetailsEthereumTxs,
+    })
   }
 
   async getXpubDetails(): Promise<never> {

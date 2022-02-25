@@ -1,8 +1,14 @@
 import * as t from 'io-ts'
 import { extendCodec } from '@faast/ts-common'
 import {
-  NormalizedTxCommonVin, NormalizedTxCommonVout, NormalizedTxCommon, paginated,
-  EthereumSpecific, TokenDetailsTypeERC20, AddressDetailsCommonBasic, BlockInfoCommon,
+  NormalizedTxCommonVin,
+  NormalizedTxCommonVout,
+  NormalizedTxCommon,
+  paginated,
+  EthereumSpecific,
+  TokenDetailsTypeERC20,
+  AddressDetailsCommonBasic,
+  BlockInfoCommon,
 } from './common'
 
 /*
@@ -23,7 +29,7 @@ export const NormalizedTxEthereumVout = extendCodec(
   {
     value: t.string, // '9988700000000000000',
   },
-  'NormalizedTxEthereumVout'
+  'NormalizedTxEthereumVout',
 )
 export type NormalizedTxEthereumVout = t.TypeOf<typeof NormalizedTxEthereumVout>
 
@@ -43,45 +49,57 @@ export type NormalizedTxEthereum = t.TypeOf<typeof NormalizedTxEthereum>
  * Get transaction specific
  */
 
-export const SpecificTxEthereumTx = t.type({
-  nonce: t.string, // '0x0',
-  gasPrice: t.string, // '0x12a05f200',
-  gas: t.string, // '0xea60',
-  to: t.string, // '0x352e504813b9e0b30f9ca70efc27a52d298f6697',
-  value: t.string, // '0x8a9efdba43f1c000',
-  input: t.string, // '0x4e4e525000000000000000000...77c5fdb75413108bf',
-  hash: t.string, // '0x19bc6b578c04bfff0640834a8ab2b4bdb1d6ee4269f677d22f6c4bb20399151f',
-  blockNumber: t.string, // '0x897eb1',
-  blockHash: t.string, // '0xdfc3cb3191c782db11624cb7c66ed0b6f51d37ccdd63538b8a700587675652ad',
-  from: t.string, // '0x175bf41879a45f733553d4a0385d6369f227436c',
-  transactionIndex: t.string, // '0x53'
-}, 'SpecificTxEthereumTx')
+export const SpecificTxEthereumTx = t.type(
+  {
+    nonce: t.string, // '0x0',
+    gasPrice: t.string, // '0x12a05f200',
+    gas: t.string, // '0xea60',
+    to: t.string, // '0x352e504813b9e0b30f9ca70efc27a52d298f6697',
+    value: t.string, // '0x8a9efdba43f1c000',
+    input: t.string, // '0x4e4e525000000000000000000...77c5fdb75413108bf',
+    hash: t.string, // '0x19bc6b578c04bfff0640834a8ab2b4bdb1d6ee4269f677d22f6c4bb20399151f',
+    blockNumber: t.string, // '0x897eb1',
+    blockHash: t.string, // '0xdfc3cb3191c782db11624cb7c66ed0b6f51d37ccdd63538b8a700587675652ad',
+    from: t.string, // '0x175bf41879a45f733553d4a0385d6369f227436c',
+    transactionIndex: t.string, // '0x53'
+  },
+  'SpecificTxEthereumTx',
+)
 export type SpecificTxEthereumTx = t.TypeOf<typeof SpecificTxEthereumTx>
 
-export const SpecificTxEthereumReceipt = t.type({
-  gasUsed: t.string, // '0x7d58',
-  status: t.string, // '0x1',
-  logs: t.array(t.any), // [ ]
-}, 'SpecificTxEthereumReceipt')
+export const SpecificTxEthereumReceipt = t.type(
+  {
+    gasUsed: t.string, // '0x7d58',
+    status: t.string, // '0x1',
+    logs: t.array(t.any), // [ ]
+  },
+  'SpecificTxEthereumReceipt',
+)
 export type SpecificTxEthereumReceipt = t.TypeOf<typeof SpecificTxEthereumReceipt>
 
-export const SpecificTxEthereum = t.type({
-  tx: SpecificTxEthereumTx,
-  receipt: SpecificTxEthereumReceipt,
-}, 'SpecificTxEthereum')
+export const SpecificTxEthereum = t.type(
+  {
+    tx: SpecificTxEthereumTx,
+    receipt: SpecificTxEthereumReceipt,
+  },
+  'SpecificTxEthereum',
+)
 export type SpecificTxEthereum = t.TypeOf<typeof SpecificTxEthereum>
 
 /*
  * Get address
  */
 
-export const TokenDetailsERC20 = t.type({
-  type: TokenDetailsTypeERC20, // 'ERC20',
-  name: t.string, // 'Carrots',
-  contract: t.string, // '0x6e0646b014d99d79f4e875b6723fa8e46becbd15',
-  transfers: t.number, // 1,
-  symbol: t.string, // 'CEN',
-}, 'TokenDetailsERC20')
+export const TokenDetailsERC20 = t.type(
+  {
+    type: TokenDetailsTypeERC20, // 'ERC20',
+    name: t.string, // 'Carrots',
+    contract: t.string, // '0x6e0646b014d99d79f4e875b6723fa8e46becbd15',
+    transfers: t.number, // 1,
+    symbol: t.string, // 'CEN',
+  },
+  'TokenDetailsERC20',
+)
 export type TokenDetailsERC20 = t.TypeOf<typeof TokenDetailsERC20>
 
 export const TokenDetailsERC20Balance = extendCodec(
@@ -99,7 +117,7 @@ export const AddressDetailsEthereumBasic = extendCodec(
     nonTokenTxs: t.number, // 29483,
     nonce: t.string, // '1',
   },
-  'AddressDetailsEthereumBasic'
+  'AddressDetailsEthereumBasic',
 )
 export type AddressDetailsEthereumBasic = t.TypeOf<typeof AddressDetailsEthereumBasic>
 
@@ -109,7 +127,7 @@ export const AddressDetailsEthereumTokens = extendCodec(
   {
     tokens: TokenDetailsERC20,
   },
-  'AddressDetailsEthereumTokens'
+  'AddressDetailsEthereumTokens',
 )
 export type AddressDetailsEthereumTokens = t.TypeOf<typeof AddressDetailsEthereumTokens>
 
@@ -119,28 +137,32 @@ export const AddressDetailsEthereumTokenBalances = extendCodec(
   {
     tokens: TokenDetailsERC20Balance,
   },
-  'AddressDetailsEthereumTokenBalances'
+  'AddressDetailsEthereumTokenBalances',
 )
 export type AddressDetailsEthereumTokenBalances = t.TypeOf<typeof AddressDetailsEthereumTokenBalances>
 
-export const AddressDetailsEthereumTxids = paginated(extendCodec(
-  AddressDetailsEthereumTokenBalances,
-  {},
-  {
-    txids: t.array(t.string),
-  },
-  'AddressDetailsEthereumTxids',
-))
+export const AddressDetailsEthereumTxids = paginated(
+  extendCodec(
+    AddressDetailsEthereumTokenBalances,
+    {},
+    {
+      txids: t.array(t.string),
+    },
+    'AddressDetailsEthereumTxids',
+  ),
+)
 export type AddressDetailsEthereumTxids = t.TypeOf<typeof AddressDetailsEthereumTxids>
 
-export const AddressDetailsEthereumTxs = paginated(extendCodec(
-  AddressDetailsEthereumTokenBalances,
-  {},
-  {
-    transactions: t.array(NormalizedTxEthereum),
-  },
-  'AddressDetailsEthereumTxs',
-))
+export const AddressDetailsEthereumTxs = paginated(
+  extendCodec(
+    AddressDetailsEthereumTokenBalances,
+    {},
+    {
+      transactions: t.array(NormalizedTxEthereum),
+    },
+    'AddressDetailsEthereumTxs',
+  ),
+)
 export type AddressDetailsEthereumTxs = t.TypeOf<typeof AddressDetailsEthereumTxs>
 
 /*

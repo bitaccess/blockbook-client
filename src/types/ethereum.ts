@@ -114,7 +114,7 @@ export type TokenDetailsERC20Balance = t.TypeOf<typeof TokenDetailsERC20Balance>
 export const AddressDetailsEthereumBasic = extendCodec(
   AddressDetailsCommonBasic,
   {
-    nonTokenTxs: t.number, // 29483,
+    nonTokenTxs: optional(t.number), // 29483,
     nonce: t.string, // '1',
   },
   'AddressDetailsEthereumBasic',

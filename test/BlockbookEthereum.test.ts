@@ -33,7 +33,7 @@ describe('BlockbookEthereum', () => {
   })
   describe('getAddressDetails', () => {
     it('succeeds', async () => {
-      expect(await bb.getAddressDetails(ADDRESS)).toBeDefined()
+      expect(await bb.getAddressDetails('0x176366cFD97885245fAEA72f8cB6951e52655Adf')).toBeDefined()
     })
   })
   describe('getXpubDetails', () => {

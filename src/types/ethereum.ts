@@ -1,5 +1,5 @@
 import * as t from 'io-ts'
-import { extendCodec } from '@faast/ts-common'
+import { extendCodec, optional } from '@faast/ts-common'
 import {
   NormalizedTxCommonVin, NormalizedTxCommonVout, NormalizedTxCommon, paginated,
   EthereumSpecific, TokenDetailsTypeERC20, AddressDetailsCommonBasic, BlockInfoCommon,
@@ -80,14 +80,14 @@ export const TokenDetailsERC20 = t.type({
   name: t.string, // 'Carrots',
   contract: t.string, // '0x6e0646b014d99d79f4e875b6723fa8e46becbd15',
   transfers: t.number, // 1,
-  symbol: t.string, // 'CEN',
+  symbol: optional(t.string), // 'CEN',
 }, 'TokenDetailsERC20')
 export type TokenDetailsERC20 = t.TypeOf<typeof TokenDetailsERC20>
 
 export const TokenDetailsERC20Balance = extendCodec(
   TokenDetailsERC20,
   {
-    balance: t.string, // '8503600000000000000'
+    balance: optional(t.string), // '8503600000000000000'
   },
   'TokenDetailsERC20Balance',
 )
@@ -96,7 +96,7 @@ export type TokenDetailsERC20Balance = t.TypeOf<typeof TokenDetailsERC20Balance>
 export const AddressDetailsEthereumBasic = extendCodec(
   AddressDetailsCommonBasic,
   {
-    nonTokenTxs: t.number, // 29483,
+    nonTokenTxs: optional(t.number), // 29483,
     nonce: t.string, // '1',
   },
   'AddressDetailsEthereumBasic'
@@ -107,7 +107,7 @@ export const AddressDetailsEthereumTokens = extendCodec(
   AddressDetailsEthereumBasic,
   {},
   {
-    tokens: TokenDetailsERC20,
+    tokens: t.array(TokenDetailsERC20),
   },
   'AddressDetailsEthereumTokens'
 )
@@ -117,7 +117,7 @@ export const AddressDetailsEthereumTokenBalances = extendCodec(
   AddressDetailsEthereumBasic,
   {},
   {
-    tokens: TokenDetailsERC20Balance,
+    tokens: t.array(TokenDetailsERC20Balance),
   },
   'AddressDetailsEthereumTokenBalances'
 )

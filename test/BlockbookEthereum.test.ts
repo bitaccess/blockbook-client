@@ -5,7 +5,8 @@ const BLOCK_NUMBER = 1000000
 const BLOCK_HASH = '0x8e38b4dbf6b11fcc3b9dee84fb7986e29ca0a02cecd8977c161ff7333329681e'
 const ADDRESS = '0xFc32E838dD435c1904C3AAD640Dc7B419e9c891d'
 const TXID = '0xf09499a7e72ccf66a0cac01eeb5f5616f275dd4f103e3c0415fbb6e1997ed373'
-const RAW_TX = '0xf870830162988502540be40083186a0094fc32e838dd435c1904c3aad640dc7b419e9c891d8801e062bbbd1d11008026a01f4ba49998c3f4f34ffea6e05eb94bca642e532f776f28fa10c32e1081d42673a01016ad652bb3b4a3b9b68bd81fe48a15b3f1b53385434e395d3990a396652238'
+const RAW_TX =
+  '0xf870830162988502540be40083186a0094fc32e838dd435c1904c3aad640dc7b419e9c891d8801e062bbbd1d11008026a01f4ba49998c3f4f34ffea6e05eb94bca642e532f776f28fa10c32e1081d42673a01016ad652bb3b4a3b9b68bd81fe48a15b3f1b53385434e395d3990a396652238'
 
 describe('BlockbookEthereum', () => {
   const bb = new BlockbookEthereum({
@@ -31,9 +32,22 @@ describe('BlockbookEthereum', () => {
       expect(await bb.getTxSpecific(TXID)).toBeDefined()
     })
   })
+
   describe('getAddressDetails', () => {
     it('succeeds', async () => {
       expect(await bb.getAddressDetails(ADDRESS)).toBeDefined()
+    })
+  })
+
+  describe('getAddressDetails2', () => {
+    it('succeeds', async () => {
+      expect(await bb.getAddressDetails('0x176366cFD97885245fAEA72f8cB6951e52655Adf')).toBeDefined()
+    })
+  })
+
+  describe('getAddressDetails - faa.st wallet', () => {
+    it('succeeds', async () => {
+      expect(await bb.getAddressDetails('0x94fe3ad91dacba8ec4b82f56ff7c122181f1535d')).toBeDefined()
     })
   })
   describe('getXpubDetails', () => {

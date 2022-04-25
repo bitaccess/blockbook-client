@@ -1,6 +1,5 @@
 import { BlockbookBitcoin } from '../src'
-const axios = require('axios')
-// jest.mock('axios')
+import axios from 'axios'
 
 const NODES = process.env.BITCOIN_SERVER_URL?.split(',') ?? ['btc1.trezor.io', 'btc2.trezor.io', 'btc3.trezor.io']
 const BLOCK_NUMBER = 666666
@@ -112,7 +111,7 @@ describe('BlockbookBitcoin', () => {
         expect(blockP2.itemsOnPage).toBe(1000)
       })
       it('succeeds when coinbase block vin has no value', async () => {
-        const mock = jest.spyOn(axios, 'request')
+        const mock = jest.spyOn<any, string>(axios, 'request')
         try {
           mock.mockReturnValue({ status: 200, data: mockedCoinbaseResponse })
           const blockP3 = await bb.getBlock(BLOCK_NUMBER, { page: 1 })

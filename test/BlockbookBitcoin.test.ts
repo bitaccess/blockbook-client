@@ -1,13 +1,55 @@
 import { BlockbookBitcoin } from '../src'
+import axios from 'axios'
 
 const NODES = process.env.BITCOIN_SERVER_URL?.split(',') ?? ['btc1.trezor.io', 'btc2.trezor.io', 'btc3.trezor.io']
 const BLOCK_NUMBER = 666666
 const BLOCK_HASH = '0000000000000000000b7b8574bc6fd285825ec2dbcbeca149121fc05b0c828c'
-const XPUB = 'xpub661MyMwAqRbcFtXgS5sYJABqqG9YLmC4Q1Rdap9gSE8NqtwybGhePY2gZ29ESFjqJoCu1Rupje8YtGqsefD265TMg7usUDFdp6W1EGMcet8'
+const XPUB =
+  'xpub661MyMwAqRbcFtXgS5sYJABqqG9YLmC4Q1Rdap9gSE8NqtwybGhePY2gZ29ESFjqJoCu1Rupje8YtGqsefD265TMg7usUDFdp6W1EGMcet8'
 const ADDRESS = '193P6LtvS4nCnkDvM9uXn1gsSRqh4aDAz7'
 const TXID = '251b9c567fc7bca1cd354ce7aa278d48af79438ccae871a585b4b89d10aaa649'
-const RAW_TX = '0200000001d1442246db3345a611d864e7753ee1e4dd7476817aacf53c4fbfa17447c5e8ab000000006b483045022100910d62240028c179011c2cd15ded7353422db26c17f95225683c412a8d89e1ee0220017c427c8e4252d7d28fac5b95068ff8604d15755c7ff3b36459824041446ec8012102430848768b5fba28c043fd71ba01acf38e7ae356fc27f1312bd8b283c1d22358fdffffff020c200100000000001976a91420745eb623e0103fdc499a7369b91c96655df09588ac88e703000000000017a914751ef966546056ee26ffeeee3cf9dc33b42da8bb875f420900'
-
+const RAW_TX =
+  '0200000001d1442246db3345a611d864e7753ee1e4dd7476817aacf53c4fbfa17447c5e8ab000000006b483045022100910d62240028c179011c2cd15ded7353422db26c17f95225683c412a8d89e1ee0220017c427c8e4252d7d28fac5b95068ff8604d15755c7ff3b36459824041446ec8012102430848768b5fba28c043fd71ba01acf38e7ae356fc27f1312bd8b283c1d22358fdffffff020c200100000000001976a91420745eb623e0103fdc499a7369b91c96655df09588ac88e703000000000017a914751ef966546056ee26ffeeee3cf9dc33b42da8bb875f420900'
+const mockedCoinbaseResponse = {
+  page: 1,
+  totalPages: 3,
+  itemsOnPage: 1000,
+  hash: '0000000000000000000b7b8574bc6fd285825ec2dbcbeca149121fc05b0c828c',
+  previousBlockHash: '0000000000000000000d3ac711558b41b477e4d2c178aa816f267ee9e82c71a3',
+  nextBlockHash: '00000000000000000006ab70890dee2655cffb5b722c4d65ae3b41a6560dc861',
+  height: 666666,
+  confirmations: 66857,
+  size: 1252868,
+  time: 1611012483,
+  version: 536870912,
+  merkleRoot: 'f0ee88d161a79234fe61e5d109daa8ab2b8ca605cdf3a5fa6acc31853b16426c',
+  nonce: '1795946055',
+  bits: '170da8a1',
+  difficulty: '20607418304385.63',
+  txCount: 2728,
+  txs: [
+    {
+      txid: '01d2b94605d01eb2015c437399398da45dbcf27af8dbc68f019c885593aad568',
+      vin: [
+        {
+          sequence: 4294967295,
+          n: 0,
+          isAddress: false,
+          coinbase:
+            '03822f0b182f5669614254432f4d696e656420627920717565656e6c2f2cfabe6d6d8dde6179768149149dd904d8f65585c7ca93d086d9c476e0ae6ce79ad24bf19f1000000000000000103fc96500b7e2b1e1c45e7001748a000000000000',
+        },
+      ],
+      vout: [],
+      blockHash: '0000000000000000000b7b8574bc6fd285825ec2dbcbeca149121fc05b0c828c',
+      blockHeight: 666666,
+      confirmations: 66856,
+      blockTime: 1611012483,
+      value: '146131',
+      valueIn: '155173',
+      fees: '9042',
+    },
+  ],
+}
 describe('BlockbookBitcoin', () => {
   function runStandardTests(bb: BlockbookBitcoin) {
     describe('getBlockHash', () => {
@@ -67,6 +109,17 @@ describe('BlockbookBitcoin', () => {
         expect(blockP2.page).toBe(2)
         expect(blockP2.totalPages).toBe(3)
         expect(blockP2.itemsOnPage).toBe(1000)
+      })
+      it('succeeds when coinbase block vin has no value', async () => {
+        const mock = jest.spyOn<any, string>(axios, 'request')
+        try {
+          mock.mockReturnValue({ status: 200, data: mockedCoinbaseResponse })
+          const blockP3 = await bb.getBlock(BLOCK_NUMBER, { page: 1 })
+          expect(blockP3).toBeDefined()
+        } finally {
+          // close mock even if this test fail
+          mock.mockRestore()
+        }
       })
     })
     describe('sendTx throws on already broadcast', () => {

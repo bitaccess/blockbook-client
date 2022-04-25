@@ -54,7 +54,7 @@
     "@types/node": "^10.17.3",
     "@types/qs": "^6.9.0",
     "@types/ws": "^7.4.1",
-    "coveralls": "^3.0.2",
+    "coveralls": "^3.1.1",
     "jest": "^27.2.4",
     "jest-circus": "^27.2.4",
     "jest-config": "^27.2.4",

@@ -13,7 +13,6 @@ export const NormalizedTxBitcoinVin = extendCodec(
   NormalizedTxCommonVin,
   {
     value: t.string, // '2895163'
-    coinbase: t.undefined,
   },
   'NormalizedTxBitcoinVin',
 )

@@ -2,7 +2,8 @@ import axios, { AxiosRequestConfig, AxiosError } from 'axios'
 import { isString } from '@faast/ts-common'
 import qs from 'qs'
 
-export const USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.114 Safari/537.36'
+export const USER_AGENT =
+  'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.114 Safari/537.36'
 
 function tryParseJson(body: any): any {
   try {
@@ -33,7 +34,7 @@ export async function jsonRequest(
     ...options,
     headers: {
       'user-agent': USER_AGENT,
-    }
+    },
   }
   try {
     let { data } = await axios.request(fullOptions)
@@ -41,7 +42,7 @@ export async function jsonRequest(
       throw new Error(data.error.message)
     }
     return data
-  } catch(e) {
+  } catch (e) {
     if (axios.isAxiosError(e)) {
       const body = e.response?.data as any
       if (isString(body?.error)) {

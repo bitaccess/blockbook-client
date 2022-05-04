@@ -4,14 +4,31 @@ import * as t from 'io-ts'
 import WebSocket from 'ws'
 
 import {
-  BlockHashResponseWs, EstimateFeeResponse, GetBlockOptions, SubscribeAddressesEvent, SubscribeNewBlockEvent
+  BlockHashResponseWs,
+  EstimateFeeResponse,
+  GetBlockOptions,
+  SubscribeAddressesEvent,
+  SubscribeNewBlockEvent,
 } from './types/common'
 import {
-  XpubDetailsBasic, XpubDetailsTokens, XpubDetailsTokenBalances, XpubDetailsTxids, XpubDetailsTxs,
-  BlockbookConfig, SystemInfo, BlockHashResponse, GetAddressDetailsOptions,
-  UtxoDetails, UtxoDetailsXpub, GetUtxosOptions, GetXpubDetailsOptions,
-  SendTxSuccess, SendTxError,
-  Resolve, Reject, SystemInfoWs
+  XpubDetailsBasic,
+  XpubDetailsTokens,
+  XpubDetailsTokenBalances,
+  XpubDetailsTxids,
+  XpubDetailsTxs,
+  BlockbookConfig,
+  SystemInfo,
+  BlockHashResponse,
+  GetAddressDetailsOptions,
+  UtxoDetails,
+  UtxoDetailsXpub,
+  GetUtxosOptions,
+  GetXpubDetailsOptions,
+  SendTxSuccess,
+  SendTxError,
+  Resolve,
+  Reject,
+  SystemInfoWs,
 } from './types'
 import { jsonRequest, USER_AGENT } from './utils'
 
@@ -23,8 +40,8 @@ const xpubDetailsCodecs = {
   txs: XpubDetailsTxs,
 }
 
-type PendingWsRequests = { [id: string]: { resolve: Resolve, reject: Reject } }
-type SubscriptionData = { callback: (value: any) => void | Promise<void>, method: string, params: object }
+type PendingWsRequests = { [id: string]: { resolve: Resolve; reject: Reject } }
+type SubscriptionData = { callback: (value: any) => void | Promise<void>; method: string; params: object }
 type SubscriptionIdToData = { [id: string]: SubscriptionData }
 
 /**
@@ -41,7 +58,7 @@ export abstract class BaseBlockbook<
   AddressDetailsTokens,
   AddressDetailsTokenBalances,
   AddressDetailsTxids,
-  AddressDetailsTxs,
+  AddressDetailsTxs
 > {
   /** Blockbook URIs */
   nodes: string[]
@@ -92,19 +109,19 @@ export abstract class BaseBlockbook<
     private specificTxCodec: t.Type<SpecificTx>,
     private blockInfoCodec: t.Type<BlockInfo>,
     private addressDetailsCodecs: {
-      basic: t.Type<AddressDetailsBasic>,
-      tokens: t.Type<AddressDetailsTokens>,
-      tokenBalances: t.Type<AddressDetailsTokenBalances>,
-      txids: t.Type<AddressDetailsTxids>,
-      txs: t.Type<AddressDetailsTxs>,
-    }
+      basic: t.Type<AddressDetailsBasic>
+      tokens: t.Type<AddressDetailsTokens>
+      tokenBalances: t.Type<AddressDetailsTokenBalances>
+      txids: t.Type<AddressDetailsTxids>
+      txs: t.Type<AddressDetailsTxs>
+    },
   ) {
     config = assertType(BlockbookConfig, config)
     if (config.nodes.length === 0) {
       throw new Error('Blockbook node list must not be empty')
     }
     // trim trailing slash
-    this.nodes = config.nodes.map((node) => node.trim().replace(/\/$/, ''))
+    this.nodes = config.nodes.map(node => node.trim().replace(/\/$/, ''))
 
     // validate all responses by default
     this.disableTypeValidation = config.disableTypeValidation || false
@@ -128,7 +145,6 @@ export abstract class BaseBlockbook<
     }
     return assertType(codec, value, ...rest)
   }
-
 
   /** Load balance using round robin. Helps any retry logic fallback to different nodes */
   private pickNode() {
@@ -157,11 +173,12 @@ export abstract class BaseBlockbook<
     const req = {
       id,
       method,
-      params
+      params,
     }
     return new Promise((resolve, reject) => {
       setTimeout(() => {
-        if (this.pendingWsRequests[id]?.reject === reject) { // Verify the same request is still pending
+        if (this.pendingWsRequests[id]?.reject === reject) {
+          // Verify the same request is still pending
           delete this.pendingWsRequests[id]
           reject(new Error(`Timeout waiting for websocket ${method} response (id: ${id})`))
         }
@@ -202,7 +219,7 @@ export abstract class BaseBlockbook<
    */
   private reconnect(baseDelay: number, existingSubscriptions: SubscriptionData[]) {
     const reconnectMs = Math.round(baseDelay * (1 + Math.random()))
-    this.logger.log(`socket reconnecting in ${reconnectMs/1000}s to one of`, this.nodes)
+    this.logger.log(`socket reconnecting in ${reconnectMs / 1000}s to one of`, this.nodes)
     setTimeout(async () => {
       try {
         await this.connect()
@@ -257,7 +274,7 @@ export abstract class BaseBlockbook<
         this.wsConnectedNode = node
         resolve()
       })
-      this.ws.once('error', (e) => {
+      this.ws.once('error', e => {
         this.logger.warn(`socket error connecting to ${node}`, e)
         this.ws.terminate()
         reject(e)
@@ -270,7 +287,7 @@ export abstract class BaseBlockbook<
       delete this.wsPendingConnectPromise
     }
 
-    this.ws.on('close', (code) => {
+    this.ws.on('close', code => {
       this.logger.warn(`socket connection to ${node} closed with code: ${code}`)
       this.wsConnected = false
       this.wsConnectedNode = undefined
@@ -280,12 +297,12 @@ export abstract class BaseBlockbook<
         this.reconnect(this.reconnectDelayMs, Object.values(this.subscriptionIdToData))
       }
     })
-    this.ws.on('error', (e) => {
+    this.ws.on('error', e => {
       this.logger.warn(`socket error for ${node}`, e)
     })
 
     // Parse all incoming messages and forward them to any pending requests or subscriptions
-    this.ws.on('message', (data) => {
+    this.ws.on('message', data => {
       if (this.debug) {
         this.logger.debug(`socket message from ${node}`, data)
       }
@@ -327,11 +344,9 @@ export abstract class BaseBlockbook<
         }
         const maybePromise = activeSubscription.callback(result)
         if (maybePromise) {
-          maybePromise?.catch((e) => this.logger.error(
-            `Error handling ${activeSubscription.method} subscription data (id: ${id})`,
-            result,
-            e,
-          ))
+          maybePromise?.catch(e =>
+            this.logger.error(`Error handling ${activeSubscription.method} subscription data (id: ${id})`, result, e),
+          )
         }
         return
       }
@@ -357,7 +372,7 @@ export abstract class BaseBlockbook<
     }
     return new Promise((resolve, reject) => {
       this.ws.once('close', () => resolve())
-      this.ws.once('error', (e) => reject(e))
+      this.ws.once('error', e => reject(e))
       this.ws.close()
     })
   }
@@ -382,7 +397,7 @@ export abstract class BaseBlockbook<
     return this.doAssertType(SystemInfo, response)
   }
 
-  async getBestBlock(): Promise<{ height: number, hash: string }> {
+  async getBestBlock(): Promise<{ height: number; hash: string }> {
     if (this.wsConnected) {
       const info = await this.getInfo()
       return { height: info.bestHeight, hash: info.bestHash }
@@ -426,11 +441,11 @@ export abstract class BaseBlockbook<
   ): Promise<AddressDetailsTokens>
   async getAddressDetails(
     address: string,
-    options: GetAddressDetailsOptions & { details: 'tokenBalances' }
+    options: GetAddressDetailsOptions & { details: 'tokenBalances' },
   ): Promise<AddressDetailsTokenBalances>
   async getAddressDetails(
     address: string,
-    options?: GetAddressDetailsOptions & { details: 'txids' | undefined } | Omit<GetAddressDetailsOptions, 'details'>
+    options?: (GetAddressDetailsOptions & { details: 'txids' | undefined }) | Omit<GetAddressDetailsOptions, 'details'>,
   ): Promise<AddressDetailsTxids>
   async getAddressDetails(
     address: string,
@@ -445,26 +460,17 @@ export abstract class BaseBlockbook<
     return this.doAssertType(codec, response)
   }
 
+  async getXpubDetails(xpub: string, options: GetXpubDetailsOptions & { details: 'basic' }): Promise<XpubDetailsBasic>
+  async getXpubDetails(xpub: string, options: GetXpubDetailsOptions & { details: 'tokens' }): Promise<XpubDetailsTokens>
   async getXpubDetails(
     xpub: string,
-    options: GetXpubDetailsOptions & { details: 'basic' },
-  ): Promise<XpubDetailsBasic>
-  async getXpubDetails(
-    xpub: string,
-    options: GetXpubDetailsOptions & { details: 'tokens' },
-  ): Promise<XpubDetailsTokens>
-  async getXpubDetails(
-    xpub: string,
-    options: GetXpubDetailsOptions & { details: 'tokenBalances' }
+    options: GetXpubDetailsOptions & { details: 'tokenBalances' },
   ): Promise<XpubDetailsTokenBalances>
   async getXpubDetails(
     xpub: string,
-    options?: GetXpubDetailsOptions & { details: 'txids' | undefined } | Omit<GetXpubDetailsOptions, 'details'>
+    options?: (GetXpubDetailsOptions & { details: 'txids' | undefined }) | Omit<GetXpubDetailsOptions, 'details'>,
   ): Promise<XpubDetailsTxids>
-  async getXpubDetails(
-    xpub: string,
-    options: GetXpubDetailsOptions & { details: 'txs' },
-  ): Promise<XpubDetailsTxs>
+  async getXpubDetails(xpub: string, options: GetXpubDetailsOptions & { details: 'txs' }): Promise<XpubDetailsTxs>
   async getXpubDetails(xpub: string, options: GetXpubDetailsOptions = {}) {
     const tokens = options.tokens || 'derived'
     const detailsLevel = options.details || 'txids'

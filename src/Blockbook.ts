@@ -25,18 +25,12 @@ export class Blockbook extends BaseBlockbook<
   AddressDetailsCommonTxs
 > {
   constructor(config: BlockbookConfig) {
-    super(
-      config,
-      NormalizedTxCommon,
-      t.any,
-      BlockInfoCommon,
-      {
-        basic: AddressDetailsCommonBasic,
-        tokens: AddressDetailsCommonTokens,
-        tokenBalances: AddressDetailsCommonTokenBalances,
-        txids: AddressDetailsCommonTxids,
-        txs: AddressDetailsCommonTxs,
-      }
-    )
+    super(config, NormalizedTxCommon, t.any, BlockInfoCommon, {
+      basic: AddressDetailsCommonBasic,
+      tokens: AddressDetailsCommonTokens,
+      tokenBalances: AddressDetailsCommonTokenBalances,
+      txids: AddressDetailsCommonTxids,
+      txs: AddressDetailsCommonTxs,
+    })
   }
 }

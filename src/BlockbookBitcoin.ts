@@ -25,18 +25,12 @@ export class BlockbookBitcoin extends BaseBlockbook<
   AddressDetailsBitcoinTxs
 > {
   constructor(config: BlockbookConfig) {
-    super(
-      config,
-      NormalizedTxBitcoin,
-      SpecificTxBitcoin,
-      BlockInfoBitcoin,
-      {
-        basic: AddressDetailsBitcoinBasic,
-        tokens: AddressDetailsBitcoinTokens,
-        tokenBalances: AddressDetailsBitcoinTokenBalances,
-        txids: AddressDetailsBitcoinTxids,
-        txs: AddressDetailsBitcoinTxs,
-      }
-    )
+    super(config, NormalizedTxBitcoin, SpecificTxBitcoin, BlockInfoBitcoin, {
+      basic: AddressDetailsBitcoinBasic,
+      tokens: AddressDetailsBitcoinTokens,
+      tokenBalances: AddressDetailsBitcoinTokenBalances,
+      txids: AddressDetailsBitcoinTxids,
+      txs: AddressDetailsBitcoinTxs,
+    })
   }
 }

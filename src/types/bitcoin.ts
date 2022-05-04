@@ -9,14 +9,14 @@ import {
  * Get transaction
  */
 
-export const NormalizedTxBitcoinVin = extendCodec(
+export const NormalizedTxBitcoinVinWithoutCoinbase = extendCodec(
   NormalizedTxCommonVin,
   {
     value: t.string, // '2895163'
   },
-  'NormalizedTxBitcoinVin',
+  'NormalizedTxBitcoinVinWithoutCoinbase',
 )
-export type NormalizedTxBitcoinVin = t.TypeOf<typeof NormalizedTxBitcoinVin>
+export type NormalizedTxBitcoinVinWithoutCoinbase = t.TypeOf<typeof NormalizedTxBitcoinVinWithoutCoinbase>
 
 export const NormalizedTxBitcoinVinWithCoinbase = extendCodec(
   NormalizedTxCommonVin,
@@ -26,6 +26,10 @@ export const NormalizedTxBitcoinVinWithCoinbase = extendCodec(
   'NormalizedTxBitcoinVinWithCoinbase',
 )
 export type NormalizedTxBitcoinVinWithCoinbase = t.TypeOf<typeof NormalizedTxBitcoinVinWithCoinbase>
+
+export const NormalizedTxBitcoinVin = 
+  t.union([NormalizedTxBitcoinVinWithoutCoinbase, NormalizedTxBitcoinVinWithCoinbase], 'NormalizedTxBitcoinVin')
+export type NormalizedTxBitcoinVin = t.TypeOf<typeof NormalizedTxBitcoinVin>
 
 
 
@@ -41,7 +45,7 @@ export type NormalizedTxBitcoinVout = t.TypeOf<typeof NormalizedTxBitcoinVout>
 export const NormalizedTxBitcoin = extendCodec(
   NormalizedTxCommon,
   {
-    vin: t.array(t.union([NormalizedTxBitcoinVin, NormalizedTxBitcoinVinWithCoinbase])),
+    vin: t.array(NormalizedTxBitcoinVin),
     vout: t.array(NormalizedTxBitcoinVout),
     valueIn: t.string, // '2895163'
     fees: t.string, // '302808'

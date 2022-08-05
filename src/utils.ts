@@ -1,5 +1,5 @@
 import axios, { AxiosRequestConfig, AxiosError } from 'axios'
-import { isString } from '@faast/ts-common'
+import { isString } from '@bitaccess/ts-common'
 import qs from 'qs'
 
 export const USER_AGENT =

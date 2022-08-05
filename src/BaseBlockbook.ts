@@ -1,5 +1,5 @@
 import { AxiosRequestConfig } from 'axios'
-import { assertType, DelegateLogger, isString, isUndefined, Logger } from '@faast/ts-common'
+import { assertType, DelegateLogger, isString, isUndefined, Logger } from '@bitaccess/ts-common'
 import * as t from 'io-ts'
 import WebSocket from 'ws'
 

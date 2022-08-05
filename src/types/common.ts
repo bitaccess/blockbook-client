@@ -1,5 +1,5 @@
 import * as t from 'io-ts'
-import { requiredOptionalCodec, extendCodec, Logger, nullable } from '@faast/ts-common'
+import { requiredOptionalCodec, extendCodec, Logger, nullable } from '@bitaccess/ts-common'
 
 export type Resolve = (value: any) => void
 export type Reject = (reason?: any) => void

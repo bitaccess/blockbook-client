@@ -1,5 +1,5 @@
 import * as t from 'io-ts'
-import { requiredOptionalCodec, extendCodec } from '@faast/ts-common'
+import { requiredOptionalCodec, extendCodec } from '@bitaccess/ts-common'
 import {
   NormalizedTxCommonVin,
   NormalizedTxCommonVout,

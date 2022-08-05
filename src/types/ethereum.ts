@@ -1,5 +1,5 @@
 import * as t from 'io-ts'
-import { extendCodec, optional } from '@faast/ts-common'
+import { extendCodec, optional } from '@bitaccess/ts-common'
 import {
   NormalizedTxCommonVin, NormalizedTxCommonVout, NormalizedTxCommon, paginated,
   EthereumSpecific, TokenDetailsTypeERC20, AddressDetailsCommonBasic, BlockInfoCommon,

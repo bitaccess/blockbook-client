@@ -1,5 +1,5 @@
 {
-  "extends": "./node_modules/@faast/ts-config/library/tsconfig.json",
+  "extends": "./node_modules/@bitaccess/ts-config/library/tsconfig.json",
   "compilerOptions": {
     "module": "es6",
     "target": "es2019",

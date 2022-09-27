@@ -192,7 +192,14 @@ export abstract class BaseBlockbook<
   async subscribe(method: string, params: object, callback: (result: any) => void | Promise<void>) {
     const id = (this.requestCounter++).toString()
     this.subscriptionIdToData[id] = { callback, method, params }
-    const result = await this.wsRequest(method, params, id)
+    let result
+    try {
+      result = await this.wsRequest(method, params, id)
+    } catch (e) {
+      // If request fails, delete our handler
+      delete this.subscriptionIdToData[id]
+      throw e
+    }
     // Only one of each subscription can exist at once so delete the old one if it exists
     const oldSubscriptionId = this.subscribtionMethodToId[method]
     if (oldSubscriptionId) {

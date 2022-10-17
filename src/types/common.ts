@@ -259,6 +259,7 @@ export const NormalizedTxCommon = requiredOptionalCodec(
     lockTime: t.number,
     blockHash: t.string, // '0000000000000000000aac117ba0c0910956020b30e847154311d7d01d50476f'
     size: t.number,
+    vsize: t.number,
     valueIn: t.string,
     fees: t.string, // '302808'
     hex: t.string,

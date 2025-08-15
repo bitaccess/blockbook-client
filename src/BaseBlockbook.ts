@@ -127,7 +127,7 @@ export abstract class BaseBlockbook<
     this.disableTypeValidation = config.disableTypeValidation || false
 
     // fail fast by default
-    this.requestTimeoutMs = config.requestTimeoutMs || 5000
+    this.requestTimeoutMs = config.requestTimeoutMs || 10000
 
     // reconnect to failed ws quickly by default
     this.reconnectDelayMs = config.reconnectDelayMs || 2000

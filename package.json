@@ -75,7 +75,7 @@
   },
   "dependencies": {
     "@bitaccess/ts-common": "^1.0.0",
-    "axios": "^0.22.0",
+    "axios": "^0.27.2",
     "io-ts": "^1.10.4",
     "qs": "^6.9.1",
     "ws": "^7.5.5"
